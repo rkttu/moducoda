@@ -6,6 +6,8 @@
 [![Docker](https://img.shields.io/badge/Docker-Supported-blue.svg)](https://www.docker.com/)
 [![Cross Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/rkttu/moducoda)
 
+> Note: This project is still in early development. Significant changes to the code may occur frequently without notice.
+
 **ModuCoda** is an open-source, cross-platform interactive learning environment that provides the frontend functionality similar to KataCoda and KillerCoda. It enables developers, educators, and learners to create and run interactive tutorials, coding exercises, and hands-on learning experiences across Windows, macOS, and Linux platforms.
 
 ![Screenshot](./Screenshot.jpg)
