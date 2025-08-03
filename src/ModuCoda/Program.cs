@@ -1,4 +1,5 @@
 ﻿using ModuCoda.Contracts;
+using ModuCoda.HealthChecks;
 using ModuCoda.Services;
 using System.Net;
 using System.Text;
@@ -6,13 +7,18 @@ using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Forwarder;
 
 var builder = WebApplication.CreateBuilder(args);
+var config = new Configurations(builder.Configuration);
 
-builder.Services.AddSingleton<Configurations>();
+builder.Services.AddSingleton(config);
 builder.Services.AddSingleton<UtilityService>();
 builder.Services.AddSingleton<TtydDiscoveryService>();
 builder.Services.AddSingleton<VsCodeDiscoveryService>();
 builder.Services.AddSingleton<IProcessManagerFactory, ProcessManagerFactory>();
 builder.Services.AddHostedService<BackendProcessManager>();
+builder.Services.AddHttpClient();
+
+builder.Services.AddHealthChecks()
+    .AddTypeActivatedCheck<TtydHealthChecks>("ttydHealthCheck");
 
 builder.Services.AddReverseProxy().LoadFromMemory(
     [
@@ -72,7 +78,7 @@ builder.Services.AddReverseProxy().LoadFromMemory(
             },
             Destinations = new Dictionary<string, DestinationConfig>
             {
-                { "target", new DestinationConfig { Address = "http://127.0.0.1:7681/", } },
+                { "target", new DestinationConfig { Address = config.TtydAddress.AbsoluteUri, } },
             },
         },
         new ClusterConfig
@@ -85,7 +91,7 @@ builder.Services.AddReverseProxy().LoadFromMemory(
             },
             Destinations = new Dictionary<string, DestinationConfig>
             {
-                { "target", new DestinationConfig { Address = "http://127.0.0.1:8000/", } },
+                { "target", new DestinationConfig { Address = config.VsCodeAddress.AbsoluteUri, } },
             },
         },
     ]);
@@ -107,5 +113,6 @@ app.MapGet("/instructions", (HttpContext ctx) =>
         "text/html", preferreEncoding);
 });
 
+app.MapHealthChecks("/healthz");
 app.MapReverseProxy();
 app.Run();
