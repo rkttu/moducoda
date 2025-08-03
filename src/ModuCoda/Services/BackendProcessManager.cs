@@ -1,17 +1,20 @@
 ﻿public sealed class BackendProcessManager : BackgroundService
 {
     private ILogger<BackendProcessManager> _logger;
-    private BackendProcessDiscoveryService _discoveryService;
+    private TtydDiscoveryService _ttydDiscoveryService;
+    private VsCodeDiscoveryService _vsCodeDiscoveryService;
     private IProcessManagerFactory _processManagerFactory;
 
     [ActivatorUtilitiesConstructor]
     public BackendProcessManager(
         ILogger<BackendProcessManager> logger,
-        BackendProcessDiscoveryService discoveryService,
+        TtydDiscoveryService discoveryService,
+        VsCodeDiscoveryService vsCodeDiscoveryService,
         IProcessManagerFactory processManagerFactory)
     {
         _logger = logger;
-        _discoveryService = discoveryService;
+        _ttydDiscoveryService = discoveryService;
+        _vsCodeDiscoveryService = vsCodeDiscoveryService;
         _processManagerFactory = processManagerFactory;
     }
 
@@ -29,15 +32,15 @@
             });
 
             var ttydTask = ttydProcess.StartAsync(
-                _discoveryService.GetTtydPath(),
-                _discoveryService.GetTtydArguments(),
+                _ttydDiscoveryService.GetTtydPath(),
+                _ttydDiscoveryService.GetTtydArguments(),
                 cancellationToken: stoppingToken);
             var codeTask = codeProcess.StartAsync(
-                _discoveryService.GetCodePath(),
-                _discoveryService.GetCodeArguments(),
+                _vsCodeDiscoveryService.GetCodePath(),
+                _vsCodeDiscoveryService.GetCodeArguments(),
                 environmentVariables: new Dictionary<string, string?>
                 {
-                    { "DONT_PROMPT_WSL_INSTALL", "" },
+                    { "DONT_PROMPT_WSL_INSTALL", string.Empty },
                 },
                 cancellationToken: stoppingToken);
             await Task.WhenAll(ttydTask, codeTask).ConfigureAwait(false);

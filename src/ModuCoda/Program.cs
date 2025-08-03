@@ -5,7 +5,9 @@ using Yarp.ReverseProxy.Forwarder;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<BackendProcessDiscoveryService>();
+builder.Services.AddSingleton<UtilityService>();
+builder.Services.AddSingleton<TtydDiscoveryService>();
+builder.Services.AddSingleton<VsCodeDiscoveryService>();
 builder.Services.AddSingleton<IProcessManagerFactory, ProcessManagerFactory>();
 builder.Services.AddHostedService<BackendProcessManager>();
 
