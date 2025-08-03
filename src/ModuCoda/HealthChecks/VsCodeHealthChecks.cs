@@ -3,19 +3,19 @@ using ModuCoda.Services;
 
 namespace ModuCoda.HealthChecks;
 
-public sealed class TtydHealthChecks : IHealthCheck
+public sealed class VsCodeHealthChecks : IHealthCheck
 {
     private readonly Configurations _configurations;
     private readonly UtilityService _utilityService;
     private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<TtydHealthChecks> _logger;
+    private readonly ILogger<VsCodeHealthChecks> _logger;
 
     [ActivatorUtilitiesConstructor]
-    public TtydHealthChecks(
+    public VsCodeHealthChecks(
         Configurations configurations,
         UtilityService utilityService,
         IHttpClientFactory httpClientFactory,
-        ILogger<TtydHealthChecks> logger)
+        ILogger<VsCodeHealthChecks> logger)
     {
         _configurations = configurations;
         _utilityService = utilityService;
@@ -25,7 +25,7 @@ public sealed class TtydHealthChecks : IHealthCheck
 
     private DateTime GetLastChecked()
     {
-        if (_utilityService.States.TryGetValue("TtydHealthCheckLastChecked", out var lastCheckedValue) &&
+        if (_utilityService.States.TryGetValue("VsCodeHealthCheckLastChecked", out var lastCheckedValue) &&
             lastCheckedValue is DateTime value)
             return value;
 
@@ -34,22 +34,22 @@ public sealed class TtydHealthChecks : IHealthCheck
 
     private DateTime SetLastChecked(DateTime value)
     {
-        _utilityService.States["TtydHealthCheckLastChecked"] = value;
+        _utilityService.States["VsCodeHealthCheckLastChecked"] = value;
         return value;
     }
 
     private HealthCheckResult GetLastStatus()
     {
-        if (_utilityService.States.TryGetValue("TtydHealthCheckLastStatus", out var lastStatusValue) &&
+        if (_utilityService.States.TryGetValue("VsCodeHealthCheckLastStatus", out var lastStatusValue) &&
             lastStatusValue is HealthCheckResult lastStatus)
             return lastStatus;
 
-        return HealthCheckResult.Unhealthy("Ttyd health check has not been performed yet.");
+        return HealthCheckResult.Unhealthy("VsCode health check has not been performed yet.");
     }
 
     private HealthCheckResult SetLastStatus(HealthCheckResult value)
     {
-        _utilityService.States["TtydHealthCheckLastStatus"] = value;
+        _utilityService.States["VsCodeHealthCheckLastStatus"] = value;
         return value;
     }
 
@@ -70,27 +70,23 @@ public sealed class TtydHealthChecks : IHealthCheck
                 return lastStatus;
             }
 
-            var targetUri = _configurations.TtydAddress;
+            var targetUri = _configurations.VsCodeAddress;
             using var client = _httpClientFactory.CreateClient();
 
-            using var requestMessage = new HttpRequestMessage(HttpMethod.Head, targetUri);
+            using var requestMessage = new HttpRequestMessage(HttpMethod.Get, targetUri);
             var responseMessage = await client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
 
             if (!responseMessage.IsSuccessStatusCode)
-                return SetLastStatus(HealthCheckResult.Unhealthy("Ttyd is not available or running."));
+                return SetLastStatus(HealthCheckResult.Unhealthy("VsCode is not available or running."));
 
-            var name = responseMessage.Headers.Server.FirstOrDefault()?.Product?.Name;
-            if (name == null || name.StartsWith("ttyd/", StringComparison.Ordinal))
-                return SetLastStatus(HealthCheckResult.Unhealthy("Ttyd is not available or running."));
-
-            lastStatus = HealthCheckResult.Healthy("Ttyd is available and running.");
-            _utilityService.States["TtydHealthCheckLastStatus"] = lastStatus;
+            lastStatus = HealthCheckResult.Healthy("VsCode is available and running.");
+            _utilityService.States["VsCodeHealthCheckLastStatus"] = lastStatus;
             return lastStatus;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ttyd health check failed.");
-            return SetLastStatus(HealthCheckResult.Degraded("Ttyd health check failed."));
+            _logger.LogError(ex, "VsCode health check failed.");
+            return SetLastStatus(HealthCheckResult.Degraded("VsCode health check failed."));
         }
         finally
         {

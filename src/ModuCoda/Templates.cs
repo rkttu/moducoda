@@ -813,7 +813,7 @@ Documents  moducoda-practice
                 <div class="tab-pane" id="code-pane">
                     <iframe 
                         class="tab-iframe code-iframe" 
-                        src="/code"
+                        src="/vscode"
                         title="Code Editor">
                     </iframe>
                 </div>

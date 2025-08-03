@@ -47,11 +47,13 @@ public sealed class VsCodeDiscoveryService
     {
         var portValue = 8000; // TODO: Port randomization needed
 
-        var args = new List<string>();
-        args.Add("serve-web");
-        args.Add("--without-connection-token");
-        args.Add("--accept-server-license-terms");
-        args.Add("--server-base-path code");
+        var args = new List<string>
+        {
+            "serve-web",
+            "--without-connection-token",
+            "--accept-server-license-terms",
+            "--server-base-path vscode"
+        };
 
         if (IPEndPoint.MinPort <= portValue && portValue <= IPEndPoint.MaxPort)
             args.Add($"--port {portValue}");

@@ -18,7 +18,8 @@ builder.Services.AddHostedService<BackendProcessManager>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddHealthChecks()
-    .AddTypeActivatedCheck<TtydHealthChecks>("ttydHealthCheck");
+    .AddTypeActivatedCheck<TtydHealthChecks>("ttydHealthCheck")
+    .AddTypeActivatedCheck<VsCodeHealthChecks>("vscodeHealthCheck");
 
 builder.Services.AddReverseProxy().LoadFromMemory(
     [
@@ -46,9 +47,9 @@ builder.Services.AddReverseProxy().LoadFromMemory(
         },
         new RouteConfig
         {
-            RouteId = "code-proxy",
-            ClusterId = "code",
-            Match = new RouteMatch { Path = "/code/{**remainder}" },
+            RouteId = "vscode-proxy",
+            ClusterId = "vscode",
+            Match = new RouteMatch { Path = "/vscode/{**remainder}" },
             Transforms =
             [
                 new Dictionary<string, string>
@@ -83,7 +84,7 @@ builder.Services.AddReverseProxy().LoadFromMemory(
         },
         new ClusterConfig
         {
-            ClusterId = "code",
+            ClusterId = "vscode",
             HttpRequest = new ForwarderRequestConfig
             {
                 Version = HttpVersion.Version11,
