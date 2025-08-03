@@ -1,4 +1,8 @@
-﻿public sealed class BackendProcessManager : BackgroundService
+﻿using ModuCoda.Contracts;
+
+namespace ModuCoda.Services;
+
+public sealed class BackendProcessManager : BackgroundService
 {
     private ILogger<BackendProcessManager> _logger;
     private TtydDiscoveryService _ttydDiscoveryService;

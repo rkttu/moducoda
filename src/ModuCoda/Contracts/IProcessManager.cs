@@ -1,4 +1,6 @@
-﻿public interface IProcessManager : IDisposable
+﻿namespace ModuCoda.Contracts;
+
+public interface IProcessManager : IDisposable
 {
     event EventHandler<string> OutputReceived;
     event EventHandler<string> ErrorReceived;

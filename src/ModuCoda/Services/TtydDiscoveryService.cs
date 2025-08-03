@@ -1,22 +1,24 @@
 ﻿using System.Net;
 
+namespace ModuCoda.Services;
+
 public sealed class TtydDiscoveryService
 {
-    private readonly IConfiguration _configuration;
+    private readonly Configurations _configurations;
     private readonly UtilityService _utilityService;
 
     [ActivatorUtilitiesConstructor]
     public TtydDiscoveryService(
-        IConfiguration configuration,
+        Configurations configurations,
         UtilityService utilityService)
     {
-        _configuration = configuration;
+        _configurations = configurations;
         _utilityService = utilityService;
     }
 
     public string GetTtydPath()
     {
-        var ttydPath = _configuration["ttydPath"];
+        var ttydPath = _configurations.TtydPath;
 
         if (string.IsNullOrWhiteSpace(ttydPath) || !File.Exists(ttydPath))
             ttydPath = _utilityService.FindExecutableInPath("ttyd");
@@ -45,7 +47,7 @@ public sealed class TtydDiscoveryService
 
     public string GetTtydArguments()
     {
-        var credentialValue = _configuration["credential"];
+        var credentialValue = _configurations.TtydCredential;
         var interfaceValue = "127.0.0.1";
 
         var portValue = 7681; // TODO: Port randomization needed

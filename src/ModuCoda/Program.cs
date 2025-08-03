@@ -1,10 +1,13 @@
-﻿using System.Net;
+﻿using ModuCoda.Contracts;
+using ModuCoda.Services;
+using System.Net;
 using System.Text;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Forwarder;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<Configurations>();
 builder.Services.AddSingleton<UtilityService>();
 builder.Services.AddSingleton<TtydDiscoveryService>();
 builder.Services.AddSingleton<VsCodeDiscoveryService>();

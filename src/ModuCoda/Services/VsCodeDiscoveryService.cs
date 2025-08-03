@@ -1,22 +1,24 @@
 ﻿using System.Net;
 
+namespace ModuCoda.Services;
+
 public sealed class VsCodeDiscoveryService
 {
-    private readonly IConfiguration _configuration;
+    private readonly Configurations _configurations;
     private readonly UtilityService _utilityService;
 
     [ActivatorUtilitiesConstructor]
     public VsCodeDiscoveryService(
-        IConfiguration configuration,
+        Configurations configurations,
         UtilityService utilityService)
     {
-        _configuration = configuration;
+        _configurations = configurations;
         _utilityService = utilityService;
     }
 
     public string GetCodePath()
     {
-        var codePath = _configuration["codePath"];
+        var codePath = _configurations.VsCodePath;
 
         if (string.IsNullOrWhiteSpace(codePath) || !File.Exists(codePath))
             codePath = _utilityService.FindExecutableInPath("code.cmd");

@@ -1,4 +1,6 @@
-﻿public sealed class UtilityService
+﻿namespace ModuCoda.Services;
+
+public sealed class UtilityService
 {
     public string? FindExecutableInPath(string executableName)
     {

@@ -1,4 +1,7 @@
-﻿using System.Diagnostics;
+﻿using ModuCoda.Contracts;
+using System.Diagnostics;
+
+namespace ModuCoda.Services;
 
 public class ProcessManager : IProcessManager
 {
