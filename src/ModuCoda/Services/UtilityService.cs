@@ -1,7 +1,13 @@
-﻿namespace ModuCoda.Services;
+﻿using System.Collections.Concurrent;
+
+namespace ModuCoda.Services;
 
 public sealed class UtilityService
 {
+    private readonly ConcurrentDictionary<string, object?> _states = new ConcurrentDictionary<string, object?>();
+
+    public IDictionary<string, object?> States => _states;
+
     public string? FindExecutableInPath(string executableName)
     {
         var pathVariable = Environment.GetEnvironmentVariable("PATH");

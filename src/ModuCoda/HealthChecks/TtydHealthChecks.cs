@@ -6,32 +6,69 @@ namespace ModuCoda.HealthChecks;
 public sealed class TtydHealthChecks : IHealthCheck
 {
     private readonly Configurations _configurations;
+    private readonly UtilityService _utilityService;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<TtydHealthChecks> _logger;
 
     [ActivatorUtilitiesConstructor]
     public TtydHealthChecks(
         Configurations configurations,
+        UtilityService utilityService,
         IHttpClientFactory httpClientFactory,
         ILogger<TtydHealthChecks> logger)
     {
         _configurations = configurations;
+        _utilityService = utilityService;
         _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
-    private DateTime _lastChecked;
-    private HealthCheckResult _lastStatus = HealthCheckResult.Unhealthy();
+    private DateTime GetLastChecked()
+    {
+        if (_utilityService.States.TryGetValue("TtydHealthCheckLastChecked", out var lastCheckedValue) &&
+            lastCheckedValue is DateTime value)
+            return value;
+
+        return DateTime.MinValue;
+    }
+
+    private DateTime SetLastChecked(DateTime value)
+    {
+        _utilityService.States["TtydHealthCheckLastChecked"] = value;
+        return value;
+    }
+
+    private HealthCheckResult GetLastStatus()
+    {
+        if (_utilityService.States.TryGetValue("TtydHealthCheckLastStatus", out var lastStatusValue) &&
+            lastStatusValue is HealthCheckResult lastStatus)
+            return lastStatus;
+
+        return HealthCheckResult.Unhealthy("Ttyd health check has not been performed yet.");
+    }
+
+    private HealthCheckResult SetLastStatus(HealthCheckResult value)
+    {
+        _utilityService.States["TtydHealthCheckLastStatus"] = value;
+        return value;
+    }
 
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
         CancellationToken cancellationToken = default)
     {
+        var lastChecked = GetLastChecked();
+        var lastStatus = GetLastStatus();
+        var cached = false;
+
         try
         {
-            if (DateTime.UtcNow - _lastChecked < TimeSpan.FromSeconds(10) &&
-                _lastStatus.Status == HealthStatus.Healthy)
-                return HealthCheckResult.Healthy("Ttyd is available and running.");
+            if (DateTime.UtcNow - lastChecked < TimeSpan.FromSeconds(10) &&
+                lastStatus.Status == HealthStatus.Healthy)
+            {
+                cached = true;
+                return lastStatus;
+            }
 
             var targetUri = _configurations.TtydAddress;
             using var client = _httpClientFactory.CreateClient();
@@ -40,22 +77,25 @@ public sealed class TtydHealthChecks : IHealthCheck
             var responseMessage = await client.SendAsync(requestMessage, cancellationToken).ConfigureAwait(false);
 
             if (!responseMessage.IsSuccessStatusCode)
-                return _lastStatus = HealthCheckResult.Unhealthy("Ttyd is not available or running.");
+                return SetLastStatus(HealthCheckResult.Unhealthy("Ttyd is not available or running."));
 
             var name = responseMessage.Headers.Server.FirstOrDefault()?.Product?.Name;
             if (name == null || name.StartsWith("ttyd/", StringComparison.Ordinal))
-                return _lastStatus = HealthCheckResult.Unhealthy("Ttyd is not available or running.");
+                return SetLastStatus(HealthCheckResult.Unhealthy("Ttyd is not available or running."));
 
-            return _lastStatus = HealthCheckResult.Healthy("Ttyd is available and running.");
+            lastStatus = HealthCheckResult.Healthy("Ttyd is available and running.");
+            _utilityService.States["TtydHealthCheckLastStatus"] = lastStatus;
+            return lastStatus;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Ttyd health check failed.");
-            return _lastStatus = HealthCheckResult.Degraded("Ttyd health check failed.");
+            return SetLastStatus(HealthCheckResult.Degraded("Ttyd health check failed."));
         }
         finally
         {
-            _lastChecked = DateTime.UtcNow;
+            if (!cached)
+                SetLastChecked(DateTime.UtcNow);
         }
     }
 }
