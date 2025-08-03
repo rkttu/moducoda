@@ -1,5 +1,4 @@
-﻿using ModuCoda.Contracts;
-using ModuCoda.HealthChecks;
+﻿using ModuCoda.HealthChecks;
 using ModuCoda.Services;
 using System.Net;
 using System.Text;
@@ -11,10 +10,6 @@ var config = new Configurations(builder.Configuration);
 
 builder.Services.AddSingleton(config);
 builder.Services.AddSingleton<UtilityService>();
-builder.Services.AddSingleton<TtydDiscoveryService>();
-builder.Services.AddSingleton<VsCodeDiscoveryService>();
-builder.Services.AddSingleton<IProcessManagerFactory, ProcessManagerFactory>();
-builder.Services.AddHostedService<BackendProcessManager>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddHealthChecks()
