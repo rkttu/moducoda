@@ -3,7 +3,7 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![License: Commercial](https://img.shields.io/badge/License-Commercial-green.svg)](LICENSE-COMMERCIAL)
 [![.NET](https://img.shields.io/badge/.NET-9.0-blue.svg)](https://dotnet.microsoft.com/)
-[![Docker](https://img.shields.io/badge/Docker-Supported-blue.svg)](https://www.docker.com/)
+[![Podman](https://img.shields.io/badge/Podman-Supported-blue.svg)](https://podman.io/)
 [![Cross Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/rkttu/moducoda)
 
 > Note: This project is still in early development. Significant changes to the code may occur frequently without notice.
@@ -19,7 +19,7 @@
 - **Cross-Platform Support**: Runs natively on Windows, macOS, and Linux
 - **Interactive Terminal**: Web-based terminal access via ttyd integration
 - **Code Editor Integration**: VS Code tunnel integration for full IDE experience
-- **Docker Support**: Container-ready deployment with Docker
+- **Podman Support**: Container-ready deployment with Podman
 - **Responsive Design**: Modern, mobile-friendly web interface with resizable panels
 - **Real-time Execution**: Execute commands and see results instantly through integrated services
 - **Educational Templates**: Pre-built interactive learning content
@@ -33,28 +33,28 @@ ModuCoda acts as a central hub that proxies requests to various backend services
 - **Code Editor**: VS Code tunnel (external service) for development environment
 - **Frontend**: Modern HTML5/CSS3/JavaScript with responsive layout
 - **Health Checks**: Built-in health monitoring for all integrated services
-- **Containerization**: Docker support for easy deployment
+- **Containerization**: Podman support for easy deployment
 
 ### Service Architecture
 
 ```
-¦£¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¤    ¦£¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¤    ¦£¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¤
-¦¢                 ¦¢    ¦¢                 ¦¢    ¦¢                 ¦¢
-¦¢   Web Browser   ¦¢?¦¡¦¡?¦¢    ModuCoda     ¦¢?¦¡¦¡?¦¢  Backend Services¦¢
-¦¢                 ¦¢    ¦¢  (YARP Proxy)   ¦¢    ¦¢                 ¦¢
-¦¦¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¥    ¦¦¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¥    ¦¦¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¥
-                                ¦¢                       ¦¢
-                                ¡å                       ¡å
-                       ¦£¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¤    ¦£¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¤
-                       ¦¢  Instructions   ¦¢    ¦¢      ttyd       ¦¢
-                       ¦¢     Page        ¦¢    ¦¢   (Terminal)    ¦¢
-                       ¦¦¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¥    ¦¦¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¥
-                                                       ¦¢
-                                                       ¡å
-                                              ¦£¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¤
-                                              ¦¢   VS Code       ¦¢
-                                              ¦¢   (Tunnel)      ¦¢
-                                              ¦¦¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¥
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½                 ï¿½ï¿½    ï¿½ï¿½                 ï¿½ï¿½    ï¿½ï¿½                 ï¿½ï¿½
+ï¿½ï¿½   Web Browser   ï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½?ï¿½ï¿½    ModuCoda     ï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½?ï¿½ï¿½  Backend Servicesï¿½ï¿½
+ï¿½ï¿½                 ï¿½ï¿½    ï¿½ï¿½  (YARP Proxy)   ï¿½ï¿½    ï¿½ï¿½                 ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                                ï¿½ï¿½                       ï¿½ï¿½
+                                ï¿½ï¿½                       ï¿½ï¿½
+                       ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                       ï¿½ï¿½  Instructions   ï¿½ï¿½    ï¿½ï¿½      ttyd       ï¿½ï¿½
+                       ï¿½ï¿½     Page        ï¿½ï¿½    ï¿½ï¿½   (Terminal)    ï¿½ï¿½
+                       ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                                                       ï¿½ï¿½
+                                                       ï¿½ï¿½
+                                              ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+                                              ï¿½ï¿½   VS Code       ï¿½ï¿½
+                                              ï¿½ï¿½   (Tunnel)      ï¿½ï¿½
+                                              ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 ```
 
 ## ?? Prerequisites
@@ -62,7 +62,7 @@ ModuCoda acts as a central hub that proxies requests to various backend services
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) or later
 - [ttyd](https://github.com/tsl0922/ttyd) (for terminal functionality)
 - [Visual Studio Code](https://code.visualstudio.com/) with tunnel support
-- [Docker](https://www.docker.com/) (optional, for containerized deployment)
+- [Podman](https://podman.io/) (optional, for containerized deployment)
 
 ## ?? Installation & Setup
 
@@ -113,29 +113,36 @@ ModuCoda acts as a central hub that proxies requests to various backend services
    - The interface provides tabbed access to both terminal and code editor
    - Interactive learning content is available in the left panel
 
-### Option 2: Docker Deployment
+### Option 2: Podman Deployment
 
 1. **Clone the repository**
 
    ```bash
    git clone https://github.com/rkttu/moducoda.git
-   cd moducoda
+   cd moducoda/src
    ```
 
-2. **Build Docker image**
+2. **Build and run the container**
 
    ```bash
-   docker build -t moducoda -f src/ModuCoda/Dockerfile .
+   podman build -t moducoda -f ModuCoda/Dockerfile .
+   podman run -p 5000:5000 moducoda
    ```
 
-3. **Run container**
+3. **Access the application**
+   - **Main Application**: `http://localhost:5000`
+   - All services (ttyd terminal, VS Code tunnel) are accessible through the main application's proxy routes
 
-   ```bash
-   docker run -p 5000:8080 moducoda
-   ```
+### Container Architecture
 
-4. **Access the application**
-   - Open your browser and navigate to `http://localhost:5000`
+The Podman container runs as a single, self-contained unit with:
+
+- **ModuCoda Application**: Main web application with YARP reverse proxy
+- **ttyd**: Web-based terminal (internal port 7681, accessible via `/ttyd/` route)
+- **VS Code CLI**: Code tunnel for remote development (internal port 8000, accessible via `/vscode/` route)
+- **Supervisor**: Process management for running all services together
+
+All services are managed internally and only the main application port (5000) is exposed externally.
 
 ## ?? Usage
 
@@ -159,7 +166,7 @@ ModuCoda acts as a central hub that proxies requests to various backend services
 
 - **Linux/Unix Command Line**: Basic to advanced shell commands
 - **Programming Languages**: Python, JavaScript, C#, and more
-- **DevOps Tools**: Docker, Kubernetes, CI/CD pipelines
+- **DevOps Tools**: Podman, Kubernetes, CI/CD pipelines
 - **System Administration**: File management, process control, networking
 - **Development Workflows**: Git, package managers, build tools
 
@@ -169,7 +176,7 @@ The application can be configured through:
 
 - **appsettings.json**: Basic application settings
 - **Environment Variables**: Runtime configuration
-- **Docker Environment**: Container-specific settings
+- **Podman Environment**: Container-specific settings
 
 ### Key Configuration Options
 
@@ -240,6 +247,7 @@ We welcome contributions from the community! Here's how you can help:
 - [ ] **Collaborative Features**: Multi-user sessions and sharing
 - [ ] **Service Discovery**: Automatic detection of available backend services
 - [ ] **Load Balancing**: Multiple backend service instances support
+- [ ] **Kubernetes Support**: Kubernetes and OpenShift deployment support
 
 ## ?? License
 
@@ -314,4 +322,4 @@ If you find ModuCoda helpful, please consider:
 
 ---
 
-**ModuCoda** - Making interactive learning accessible to everyone, everywhere. ??
+**ModuCoda** - Making interactive learning accessible to everyone, everywhere. ðŸš€
