@@ -75,6 +75,12 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border-left: 4px solid #4f46e5;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            /* Header/body grid for precise alignment */
+            display: grid;
+            grid-template-columns: 32px 1fr;
+            column-gap: 8px;  /* space between number and title */
+            row-gap: 10px;    /* space between header and body */
+            align-items: center;
         }
 
         .step:hover {
@@ -93,18 +99,28 @@
             border-radius: 50%;
             font-weight: 700;
             font-size: 16px;
-            margin-right: 12px;
-            margin-bottom: 16px;
+            margin-right: 0; /* use column-gap instead */
+            margin-bottom: 0; /* align neatly with title */
+            flex: 0 0 auto;
+            /* slight optical adjustment for visual center */
+            transform: translateY(1px);
         }
 
         .step h3 {
-            display: inline-block;
+            display: inline-flex; /* keep badge aligned */
+            align-items: center;
             color: #1f2937;
             font-size: 20px;
             font-weight: 600;
-            margin-bottom: 16px;
+            margin: 0; /* avoid extra gap with number */
             vertical-align: top;
-            line-height: 32px;
+            line-height: 1.1; /* tighter to align with 32px badge */
+            flex: 1 1 auto;
+        }
+
+        /* Body content spans full width below header */
+        .step > :not(.step-number):not(h3) {
+            grid-column: 1 / -1;
         }
 
         .step p {
@@ -304,6 +320,109 @@
                 padding: 14px;
             }
         }
+
+        /* Markdown content enhancements */
+        #md-content {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Headings spacing and rhythm */
+        #md-content h1,
+        #md-content h2,
+        #md-content h3,
+        #md-content h4,
+        #md-content h5,
+        #md-content h6 {
+            color: #111827;
+            line-height: 1.3;
+            margin-top: 1.25em;
+            margin-bottom: 0.5em;
+            scroll-margin-top: 90px; /* in case of in-page anchors */
+        }
+
+        /* Paragraphs */
+        #md-content p {
+            margin: 0 0 0.9em 0;
+            color: #374151;
+            font-size: 15px;
+        }
+
+        /* Lists */
+        #md-content ul,
+        #md-content ol {
+            margin: 0.6em 0 1em 0;
+            padding-left: 1.25rem;
+        }
+        #md-content li {
+            margin: 0.3em 0;
+        }
+        /* Nicer bullets */
+        #md-content ul { list-style: disc outside; }
+        #md-content ul li::marker { color: #4f46e5; font-size: 0.9em; }
+        #md-content ol { list-style: decimal; }
+        #md-content ol li::marker { color: #7c3aed; font-weight: 600; }
+        #md-content li ul,
+        #md-content li ol { margin-top: 0.3em; margin-bottom: 0.3em; }
+
+        /* Blockquotes */
+        #md-content blockquote {
+            margin: 1em 0;
+            padding: 12px 16px;
+            background: #f9fafb;
+            border-left: 4px solid #e5e7eb;
+            border-radius: 6px;
+            color: #374151;
+        }
+        #md-content blockquote p { margin: 0; }
+
+        /* Code blocks */
+        #md-content pre {
+            background: #111827;
+            color: #e5e7eb;
+            padding: 14px 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border-left: 4px solid #4f46e5;
+            margin: 0.9em 0 1.1em;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+        }
+        #md-content code:not(pre code) {
+            background: #f3f4f6;
+            color: #111827;
+            padding: 0.15em 0.35em;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95em;
+        }
+
+        /* Horizontal rules */
+        #md-content hr {
+            border: 0;
+            border-top: 1px solid #e5e7eb;
+            margin: 1.5em auto;
+        }
+
+        /* Tables (if present) */
+        #md-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+            font-size: 14px;
+        }
+        #md-content th,
+        #md-content td {
+            border: 1px solid #e5e7eb;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        #md-content thead th {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+    /* Extra spacing handled by row-gap in grid */
     </style>
 </head>
 <body>
