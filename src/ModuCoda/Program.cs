@@ -1,7 +1,6 @@
 ﻿using ModuCoda.HealthChecks;
 using ModuCoda.Services;
 using System.Net;
-using System.Text;
 using Yarp.ReverseProxy.Configuration;
 using Yarp.ReverseProxy.Forwarder;
 
@@ -93,20 +92,19 @@ builder.Services.AddReverseProxy().LoadFromMemory(
     ]);
 
 var app = builder.Build();
-var preferreEncoding = new UTF8Encoding(false);
 
-app.MapGet("/", (HttpContext ctx) =>
-{
-    return Results.Content(
-        Templates.RenderLayoutPage(),
-        "text/html", preferreEncoding);
-});
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
-app.MapGet("/instructions", (HttpContext ctx) =>
+app.MapGet("/instructions", async (HttpContext context) =>
 {
-    return Results.Content(
-        Templates.InstructionPage(),
-        "text/html", preferreEncoding);
+    var filePath = Path.Combine(app.Environment.WebRootPath, "instructions.html");
+    if (File.Exists(filePath))
+    {
+        var content = await File.ReadAllTextAsync(filePath);
+        return Results.Content(content, "text/html");
+    }
+    return Results.NotFound();
 });
 
 app.MapHealthChecks("/healthz");

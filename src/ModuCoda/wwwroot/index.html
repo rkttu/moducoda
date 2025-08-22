@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ModuCoda Interactive Learning Environments</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 30%;
+            min-width: 200px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-right: 3px solid #3498db;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            resize: horizontal;
+        }
+
+        .resizer {
+            width: 6px;
+            background: #3498db;
+            cursor: col-resize;
+            position: relative;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+
+        .resizer:hover {
+            background: #2980b9;
+        }
+
+        .resizer::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .header {
+            background-color: #2980b9;
+            padding: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #ecf0f1;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .instruction-area {
+            flex: 1;
+            background-color: #000;
+        }
+
+        .instruction-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #fff;
+        }
+
+        .main-area {
+            flex: 1;
+            background-color: #000;
+            position: relative;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            height: 60px;
+        }
+
+        .tab-navigation {
+            display: flex;
+            flex: 1;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            color: #ecf0f1;
+            font-size: 16px;
+            font-weight: 500;
+            padding: 16px 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #3498db;
+        }
+
+        .tab-button.active {
+            background-color: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+
+        .terminal-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 20px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #2ecc71;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .status-text {
+            color: #2ecc71;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tab-content {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-pane {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .tab-pane.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tab-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100% !important;
+                height: 40%;
+                min-height: 200px;
+                resize: vertical;
+            }
+            
+            .resizer {
+                width: 100%;
+                height: 6px;
+                cursor: row-resize;
+            }
+
+            .resizer::after {
+                width: 40px;
+                height: 2px;
+            }
+            
+            .main-area {
+                width: 100%;
+                flex: 1;
+                min-height: 300px;
+            }
+
+            .tab-button {
+                font-size: 14px;
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="header">
+                <h1>Moducoda</h1>
+                <p>Modular Learning Platform for Everyone</p>
+            </div>
+            <div class="instruction-area">
+                <iframe 
+                    class="instruction-iframe" 
+                    src="/instructions"
+                    title="Instructions">
+                </iframe>
+            </div>
+        </div>
+
+        <div class="resizer" id="resizer"></div>
+
+        <div class="main-area">
+            <div class="tab-header">
+                <div class="tab-navigation">
+                    <button class="tab-button active" data-tab="terminal">
+                        🖥️ Terminal
+                    </button>
+                    <button class="tab-button" data-tab="code">
+                        📝 Code Editor
+                    </button>
+                </div>
+                <div class="terminal-status">
+                    <div class="status-dot"></div>
+                    <span class="status-text">Connected</span>
+                </div>
+            </div>
+            
+            <div class="tab-content">
+                <div class="tab-pane active" id="terminal-pane">
+                    <iframe 
+                        class="tab-iframe terminal-iframe" 
+                        src="/ttyd/"
+                        title="Interactive Terminal">
+                    </iframe>
+                </div>
+                
+                <div class="tab-pane" id="code-pane">
+                    <iframe 
+                        class="tab-iframe code-iframe" 
+                        src="/vscode"
+                        title="Code Editor">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 탭 전환 기능
+        class TabManager {
+            constructor() {
+                this.tabButtons = document.querySelectorAll('.tab-button');
+                this.tabPanes = document.querySelectorAll('.tab-pane');
+                this.init();
+            }
+
+            init() {
+                this.tabButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const tabId = e.currentTarget.getAttribute('data-tab');
+                        this.switchTab(tabId);
+                    });
+                });
+            }
+
+            switchTab(tabId) {
+                // 모든 탭 버튼에서 active 클래스 제거
+                this.tabButtons.forEach(button => {
+                    button.classList.remove('active');
+                });
+
+                // 모든 탭 패널에서 active 클래스 제거
+                this.tabPanes.forEach(pane => {
+                    pane.classList.remove('active');
+                });
+
+                // 선택된 탭 버튼에 active 클래스 추가
+                const activeButton = document.querySelector(`[data-tab="${tabId}"]`);
+                if (activeButton) {
+                    activeButton.classList.add('active');
+                }
+
+                // 선택된 탭 패널에 active 클래스 추가
+                const activePane = document.getElementById(`${tabId}-pane`);
+                if (activePane) {
+                    activePane.classList.add('active');
+                }
+            }
+        }
+
+        // 동적 크기 조절 기능
+        class ResizableLayout {
+            constructor() {
+                this.resizer = document.getElementById('resizer');
+                this.sidebar = document.querySelector('.sidebar');
+                this.container = document.querySelector('.container');
+                this.isResizing = false;
+                this.isMobile = window.innerWidth <= 768;
+                
+                this.init();
+                this.handleResize();
+            }
+
+            init() {
+                // resizer에서만 시작
+                this.resizer.addEventListener('mousedown', this.startResize.bind(this));
+                this.resizer.addEventListener('touchstart', this.startResize.bind(this), { passive: false });
+                
+                // document 전체에서 이벤트 처리
+                document.addEventListener('mousemove', this.resize.bind(this));
+                document.addEventListener('touchmove', this.resize.bind(this), { passive: false });
+                document.addEventListener('mouseup', this.stopResize.bind(this));
+                document.addEventListener('touchend', this.stopResize.bind(this));
+                document.addEventListener('mouseleave', this.stopResize.bind(this)); // 브라우저 밖으로 나갔을 때
+                
+                window.addEventListener('resize', this.handleResize.bind(this));
+            }
+
+            startResize(e) {
+                this.isResizing = true;
+                document.body.style.cursor = this.isMobile ? 'row-resize' : 'col-resize';
+                document.body.style.userSelect = 'none';
+                
+                // iframe에서 마우스 이벤트가 차단되지 않도록
+                const iframes = document.querySelectorAll('iframe');
+                iframes.forEach(iframe => {
+                    iframe.style.pointerEvents = 'none';
+                });
+                
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            resize(e) {
+                if (!this.isResizing) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const clientX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY);
+
+                if (this.isMobile) {
+                    // 모바일: 상하 분할
+                    const containerRect = this.container.getBoundingClientRect();
+                    const containerHeight = containerRect.height;
+                    const relativeY = clientY - containerRect.top;
+                    const newHeight = Math.max(200, Math.min(containerHeight - 300, relativeY));
+                    const percentage = (newHeight / containerHeight) * 100;
+                    this.sidebar.style.height = `${percentage}%`;
+                } else {
+                    // 데스크톱: 좌우 분할
+                    const containerRect = this.container.getBoundingClientRect();
+                    const containerWidth = containerRect.width;
+                    const relativeX = clientX - containerRect.left;
+                    const newWidth = Math.max(200, Math.min(containerWidth - 300, relativeX));
+                    const percentage = (newWidth / containerWidth) * 100;
+                    this.sidebar.style.width = `${percentage}%`;
+                }
+            }
+
+            stopResize() {
+                if (!this.isResizing) return;
+                
+                this.isResizing = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+                
+                // iframe 포인터 이벤트 복원
+                const iframes = document.querySelectorAll('iframe');
+                iframes.forEach(iframe => {
+                    iframe.style.pointerEvents = 'auto';
+                });
+            }
+
+            handleResize() {
+                const wasMobile = this.isMobile;
+                this.isMobile = window.innerWidth <= 768;
+                
+                if (wasMobile !== this.isMobile) {
+                    // 모바일/데스크톱 전환 시 스타일 초기화
+                    if (this.isMobile) {
+                        this.sidebar.style.width = '100%';
+                        this.sidebar.style.height = '40%';
+                    } else {
+                        this.sidebar.style.width = '30%';
+                        this.sidebar.style.height = 'auto';
+                    }
+                }
+            }
+        }
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            new TabManager();
+            new ResizableLayout();
+        });
+    </script>
+</body>
+</html>
