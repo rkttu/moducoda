@@ -114,12 +114,53 @@
             flex: 1;
             align-items: center;
             overflow-x: auto;
+            overflow-y: hidden;
             scrollbar-width: none;
             -ms-overflow-style: none;
+            scroll-behavior: smooth;
+            position: relative;
         }
 
         .tab-navigation::-webkit-scrollbar {
             display: none;
+        }
+
+        /* 탭 스크롤 버튼 */
+        .tab-scroll-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            background: rgba(44, 62, 80, 0.9);
+            border: 1px solid #3498db;
+            border-radius: 50%;
+            color: #ecf0f1;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            z-index: 20;
+            backdrop-filter: blur(5px);
+        }
+
+        .tab-scroll-button:hover {
+            background: rgba(52, 152, 219, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .tab-scroll-button.visible {
+            display: flex;
+        }
+
+        .tab-scroll-left {
+            left: 5px;
+        }
+
+        .tab-scroll-right {
+            right: 5px;
         }
 
         .tab-container {
@@ -200,6 +241,8 @@
             align-items: center;
             justify-content: center;
             gap: 4px;
+            position: relative;
+            z-index: 10;
         }
 
         .new-tab-button:hover {
@@ -541,6 +584,21 @@
                 gap: 4px;
             }
 
+            /* 모바일에서 스크롤 버튼 크기 조정 */
+            .tab-scroll-button {
+                width: 28px;
+                height: 28px;
+                font-size: 12px;
+            }
+
+            .tab-scroll-left {
+                left: 3px;
+            }
+
+            .tab-scroll-right {
+                right: 3px;
+            }
+
             .welcome-logo {
                 font-size: 48px;
             }
@@ -582,11 +640,17 @@
         <div class="main-area">
             <div class="tab-header">
                 <div class="tab-navigation" id="tab-navigation">
+                    <button class="tab-scroll-button tab-scroll-left" id="tab-scroll-left" title="이전 탭들">
+                        ◀
+                    </button>
                     <div class="tab-container" id="tab-container">
                         <!-- 탭들이 동적으로 추가됨 -->
                     </div>
+                    <button class="tab-scroll-button tab-scroll-right" id="tab-scroll-right" title="다음 탭들">
+                        ▶
+                    </button>
                     <div class="new-tab-container">
-                        <button class="new-tab-button" id="new-tab-button" title="새 탭">
+                        <button class="new-tab-button" id="new-tab-button" title="새 탭" onclick="window.tabManager?.toggleNewTabDropdown()">
                             <span>+</span>
                             <span style="font-size: 12px;">▼</span>
                         </button>
@@ -677,19 +741,41 @@
                 this.tabCounter = 0;
                 this.tabContainer = document.getElementById('tab-container');
                 this.tabContent = document.getElementById('tab-content');
+                this.tabNavigation = document.getElementById('tab-navigation');
                 this.welcomeScreen = document.getElementById('welcome-screen');
                 this.newTabButton = document.getElementById('new-tab-button');
                 this.newTabDropdown = document.getElementById('new-tab-dropdown');
                 this.dropdownButton = document.getElementById('tab-dropdown-button');
                 this.dropdownMenu = document.getElementById('dropdown-menu');
+                this.scrollLeftButton = document.getElementById('tab-scroll-left');
+                this.scrollRightButton = document.getElementById('tab-scroll-right');
+                
+                // 요소들이 제대로 찾아졌는지 확인
+                console.log('AdvancedTabManager 초기화:');
+                console.log('- newTabButton:', this.newTabButton);
+                console.log('- newTabDropdown:', this.newTabDropdown);
+                console.log('- 모든 요소 찾아짐:', {
+                    tabContainer: !!this.tabContainer,
+                    tabContent: !!this.tabContent,
+                    tabNavigation: !!this.tabNavigation,
+                    welcomeScreen: !!this.welcomeScreen,
+                    newTabButton: !!this.newTabButton,
+                    newTabDropdown: !!this.newTabDropdown,
+                    dropdownButton: !!this.dropdownButton,
+                    dropdownMenu: !!this.dropdownMenu
+                });
                 
                 this.init();
                 this.showWelcomeScreen();
             }
 
             init() {
+                // 새 탭 버튼 요소 확인
+                console.log('새 탭 버튼 요소:', this.newTabButton);
+                
                 // 새 탭 버튼 드롭다운 이벤트
                 this.newTabButton.addEventListener('click', (e) => {
+                    console.log('새 탭 버튼 클릭됨!', e);
                     e.stopPropagation();
                     this.toggleNewTabDropdown();
                 });
@@ -750,12 +836,23 @@
                                 e.preventDefault();
                                 this.switchToNextTab();
                                 break;
+                            case 'ArrowLeft':
+                                e.preventDefault();
+                                this.scrollTabs(-100);
+                                break;
+                            case 'ArrowRight':
+                                e.preventDefault();
+                                this.scrollTabs(100);
+                                break;
                         }
                     }
                 });
 
                 // 클립보드 이벤트 리스너
                 this.setupClipboardHandling();
+
+                // 탭 스크롤 기능 설정
+                this.setupTabScrolling();
             }
 
             showWelcomeScreen() {
@@ -776,6 +873,8 @@
             }
 
             toggleNewTabDropdown() {
+                console.log('toggleNewTabDropdown 호출됨');
+                console.log('드롭다운 요소:', this.newTabDropdown);
                 this.newTabDropdown.classList.toggle('show');
                 // 다른 드롭다운은 닫기
                 this.closeDropdown();
@@ -848,6 +947,11 @@
                     pane: tabPane,
                     iframe: iframe
                 });
+                
+                // iframe 로드 이벤트 처리
+                iframe.addEventListener('load', () => {
+                    console.log(`${type} iframe 로드 완료:`, tabId);
+                });
 
                 // 웰컴 화면 숨기기
                 this.hideWelcomeScreen();
@@ -856,6 +960,9 @@
                 if (isActive || this.tabs.size === 1) {
                     this.switchTab(tabId);
                 }
+
+                // 스크롤 버튼 상태 업데이트
+                setTimeout(() => this.updateScrollButtons(), 100);
 
                 return tabId;
             }
@@ -880,6 +987,9 @@
                         this.showWelcomeScreen();
                     }
                 }
+
+                // 스크롤 버튼 상태 업데이트
+                setTimeout(() => this.updateScrollButtons(), 100);
             }
 
             switchTab(tabId) {
@@ -898,7 +1008,27 @@
                 this.activeTabId = tabId;
 
                 // 탭이 보이도록 스크롤 조정
-                tab.button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                this.scrollTabIntoView(tab.button);
+            }
+
+            // 특정 탭 버튼을 화면에 보이도록 스크롤
+            scrollTabIntoView(tabButton) {
+                const container = this.tabNavigation;
+                const buttonRect = tabButton.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+
+                // 탭 버튼이 컨테이너 영역을 벗어난 경우에만 스크롤
+                if (buttonRect.left < containerRect.left || buttonRect.right > containerRect.right) {
+                    const scrollLeft = tabButton.offsetLeft - container.clientWidth / 2 + tabButton.clientWidth / 2;
+                    
+                    container.scrollTo({
+                        left: Math.max(0, Math.min(scrollLeft, container.scrollWidth - container.clientWidth)),
+                        behavior: 'smooth'
+                    });
+                }
+
+                // 스크롤 버튼 상태 업데이트
+                setTimeout(() => this.updateScrollButtons(), 100);
             }
 
             switchToNextTab() {
@@ -1008,27 +1138,28 @@
                         }
                         
                     } else if (activeTab.type === 'editor') {
-                        // 코드 에디터의 경우
-                        const iframe = activeTab.iframe;
+                        // 코드 에디터의 경우 - 클립보드 복사 후 안내
+                        console.log('에디터 탭 감지 - 클립보드 복사 및 안내');
                         
-                        // VS Code에 텍스트 삽입 명령 전송
-                        iframe.contentWindow?.postMessage({
-                            type: 'editor-insert-text',
-                            data: text
-                        }, '*');
-                        
-                        // 대안 방법: VS Code API 호출 시도
                         try {
-                            const editorWindow = iframe.contentWindow;
-                            if (editorWindow && editorWindow.vscode) {
-                                // VS Code 확장 API를 통해 텍스트 삽입
-                                editorWindow.vscode.postMessage({
-                                    command: 'insertText',
-                                    text: text
-                                });
-                            }
-                        } catch (vscodeError) {
-                            console.warn('VS Code API 접근 실패, postMessage 사용:', vscodeError);
+                            // 클립보드에 복사
+                            await navigator.clipboard.writeText(text);
+                            
+                            // 사용자에게 붙여넣기 안내
+                            this.showNotification(`"${text}"가 클립보드에 복사되었습니다. VS Code에서 Ctrl+V로 붙여넣으세요.`, 'info');
+                            
+                        } catch (clipboardError) {
+                            console.error('클립보드 복사 실패:', clipboardError);
+                            
+                            // 폴백: 텍스트 선택 방식으로 복사
+                            const textArea = document.createElement('textarea');
+                            textArea.value = text;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                            
+                            this.showNotification(`"${text}"가 클립보드에 복사되었습니다. VS Code에서 Ctrl+V로 붙여넣으세요.`, 'info');
                         }
                     }
                 } catch (error) {
@@ -1043,18 +1174,98 @@
                 }
             }
 
-            showNotification(message) {
+            showNotification(message, type = 'success') {
                 const notification = document.getElementById('clipboard-notification');
                 notification.textContent = message;
+                
+                // 타입에 따른 스타일 변경
+                switch (type) {
+                    case 'success':
+                        notification.style.background = '#2ecc71';
+                        break;
+                    case 'info':
+                        notification.style.background = '#3498db';
+                        break;
+                    case 'warning':
+                        notification.style.background = '#f39c12';
+                        break;
+                    case 'error':
+                        notification.style.background = '#e74c3c';
+                        break;
+                    default:
+                        notification.style.background = '#2ecc71';
+                }
+                
                 notification.classList.add('show');
+                
+                // 정보 타입은 더 오래 표시
+                const duration = type === 'info' ? 5000 : 3000;
                 
                 setTimeout(() => {
                     notification.classList.remove('show');
-                }, 3000);
+                }, duration);
             }
 
             getActiveTab() {
                 return this.tabs.get(this.activeTabId);
+            }
+
+            // 탭 스크롤 기능 설정
+            setupTabScrolling() {
+                // 스크롤 버튼 이벤트
+                this.scrollLeftButton.addEventListener('click', () => {
+                    this.scrollTabs(-200);
+                });
+
+                this.scrollRightButton.addEventListener('click', () => {
+                    this.scrollTabs(200);
+                });
+
+                // 마우스 휠 스크롤 지원
+                this.tabNavigation.addEventListener('wheel', (e) => {
+                    e.preventDefault();
+                    const scrollAmount = e.deltaY > 0 ? 100 : -100;
+                    this.scrollTabs(scrollAmount);
+                });
+
+                // 탭 컨테이너 크기 변경 감지
+                const resizeObserver = new ResizeObserver(() => {
+                    this.updateScrollButtons();
+                });
+                resizeObserver.observe(this.tabNavigation);
+
+                // 스크롤 이벤트 감지
+                this.tabNavigation.addEventListener('scroll', () => {
+                    this.updateScrollButtons();
+                });
+
+                // 초기 버튼 상태 설정
+                this.updateScrollButtons();
+            }
+
+            // 탭 스크롤
+            scrollTabs(amount) {
+                this.tabNavigation.scrollBy({
+                    left: amount,
+                    behavior: 'smooth'
+                });
+            }
+
+            // 스크롤 버튼 표시/숨김 업데이트
+            updateScrollButtons() {
+                const container = this.tabNavigation;
+                const isScrollable = container.scrollWidth > container.clientWidth;
+                const isAtStart = container.scrollLeft <= 0;
+                const isAtEnd = container.scrollLeft >= container.scrollWidth - container.clientWidth - 1;
+
+                // 스크롤이 필요한지 확인
+                if (isScrollable) {
+                    this.scrollLeftButton.classList.toggle('visible', !isAtStart);
+                    this.scrollRightButton.classList.toggle('visible', !isAtEnd);
+                } else {
+                    this.scrollLeftButton.classList.remove('visible');
+                    this.scrollRightButton.classList.remove('visible');
+                }
             }
         }
 
@@ -1193,12 +1404,35 @@
                         const activeTab = window.tabManager.getActiveTab();
                         console.log('현재 활성 탭:', activeTab);
                         if (activeTab && activeTab.type === 'editor') {
-                            console.log('에디터에 텍스트 전송:', event.data.data);
-                            // 활성 에디터에 텍스트 전송
-                            activeTab.iframe.contentWindow?.postMessage({
-                                type: 'editor-insert',
-                                data: event.data.data
-                            }, '*');
+                            console.log('에디터 탭에서 클립보드 복사 처리:', event.data.data);
+                            
+                            const textToSend = event.data.data;
+                            
+                            // 클립보드에 복사하고 사용자에게 안내
+                            try {
+                                navigator.clipboard.writeText(textToSend).then(() => {
+                                    window.tabManager.showNotification(
+                                        `"${textToSend}"가 클립보드에 복사되었습니다. VS Code에서 Ctrl+V로 붙여넣으세요.`, 
+                                        'info'
+                                    );
+                                });
+                            } catch (clipboardError) {
+                                console.error('클립보드 복사 실패:', clipboardError);
+                                
+                                // 폴백: 텍스트 선택 방식
+                                const textArea = document.createElement('textarea');
+                                textArea.value = textToSend;
+                                document.body.appendChild(textArea);
+                                textArea.select();
+                                document.execCommand('copy');
+                                document.body.removeChild(textArea);
+                                
+                                window.tabManager.showNotification(
+                                    `"${textToSend}"가 클립보드에 복사되었습니다. VS Code에서 Ctrl+V로 붙여넣으세요.`, 
+                                    'info'
+                                );
+                            }
+                            
                         } else {
                             console.log('활성 탭이 에디터가 아님');
                         }
@@ -1221,6 +1455,24 @@
                         type: 'active-tab-info',
                         data: responseData
                     }, event.origin);
+                } else if (event.data.type === 'vscode-ready') {
+                    // VS Code iframe이 준비되었을 때
+                    console.log('VS Code 에디터 준비됨:', event.data);
+                } else if (event.data.type === 'editor-response') {
+                    // VS Code 에디터에서의 응답
+                    console.log('에디터 응답:', event.data);
+                } else if (event.data.type === 'monaco-ready') {
+                    // Monaco Editor가 준비되었을 때
+                    console.log('Monaco Editor 준비됨:', event.data);
+                } else if (event.data.type === 'show-notification') {
+                    // instructions.html에서 알림 요청
+                    console.log('알림 요청 받음:', event.data.message);
+                    if (window.tabManager) {
+                        window.tabManager.showNotification(
+                            event.data.message, 
+                            event.data.notificationType || 'info'
+                        );
+                    }
                 }
             } catch (error) {
                 console.error('메시지 처리 오류:', error);

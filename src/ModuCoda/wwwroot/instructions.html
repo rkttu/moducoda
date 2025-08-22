@@ -538,13 +538,37 @@ Documents  moducoda-practice
                     }
                     
                 } else if (activeTab.type === 'editor') {
-                    console.log('에디터에 직접 전송:', command);
+                    console.log('에디터 탭 감지 - 클립보드 복사 처리:', command);
                     
-                    const iframe = activeTab.iframe;
-                    iframe.contentWindow?.postMessage({
-                        type: 'insertText',
-                        data: command
-                    }, '*');
+                    // VS Code 에디터의 경우 클립보드 복사만 수행
+                    navigator.clipboard.writeText(command).then(() => {
+                        console.log('클립보드 복사 완료:', command);
+                        
+                        // 부모 창에 알림 요청
+                        window.parent?.postMessage({
+                            type: 'show-notification',
+                            message: `"${command}"가 클립보드에 복사되었습니다. VS Code에서 Ctrl+V로 붙여넣으세요.`,
+                            notificationType: 'info'
+                        }, '*');
+                        
+                    }).catch((clipboardError) => {
+                        console.error('클립보드 복사 실패:', clipboardError);
+                        
+                        // 폴백: 텍스트 선택 방식
+                        const textArea = document.createElement('textarea');
+                        textArea.value = command;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        
+                        // 부모 창에 알림 요청
+                        window.parent?.postMessage({
+                            type: 'show-notification',
+                            message: `"${command}"가 클립보드에 복사되었습니다. VS Code에서 Ctrl+V로 붙여넣으세요.`,
+                            notificationType: 'info'
+                        }, '*');
+                    });
                 } else {
                     console.log('알 수 없는 탭 타입:', activeTab.type);
                     copyCommand(command, event);
@@ -552,7 +576,12 @@ Documents  moducoda-practice
                     return;
                 }
                 
-                showFeedback(event.target, '전송됨!', '#059669');
+                showFeedback(event.target, '복사됨!', '#3498db');
+                
+                // 에디터 전송 시 추가 안내 (콘솔)
+                if (activeTab.type === 'editor') {
+                    console.log(`VS Code 에디터에서 "${command}" 사용 시 Ctrl+V로 붙여넣으세요.`);
+                }
                 
             } catch (error) {
                 console.error('직접 전송 실패:', error);
