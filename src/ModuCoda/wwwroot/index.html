@@ -112,6 +112,20 @@
         .tab-navigation {
             display: flex;
             flex: 1;
+            align-items: center;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .tab-navigation::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-container {
+            display: flex;
+            align-items: center;
+            min-width: 0;
         }
 
         .tab-button {
@@ -120,13 +134,18 @@
             color: #ecf0f1;
             font-size: 16px;
             font-weight: 500;
-            padding: 16px 24px;
+            padding: 16px 20px;
             cursor: pointer;
             transition: all 0.2s ease;
             border-bottom: 3px solid transparent;
             display: flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
+            position: relative;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .tab-button:hover {
@@ -140,11 +159,104 @@
             border-bottom-color: #3498db;
         }
 
+        .tab-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            margin-left: 8px;
+            padding: 2px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-close:hover {
+            background-color: rgba(231, 76, 60, 0.8);
+            color: white;
+        }
+
+        /* 새 탭 버튼 드롭다운 */
+        .new-tab-container {
+            position: relative;
+            margin-left: 8px;
+        }
+
+        .new-tab-button {
+            background: none;
+            border: none;
+            color: #ecf0f1;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 16px 12px;
+            transition: all 0.2s ease;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .new-tab-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #3498db;
+        }
+
+        .new-tab-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #2c3e50;
+            border: 1px solid #3498db;
+            border-radius: 6px;
+            min-width: 180px;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            margin-top: 4px;
+        }
+
+        .new-tab-dropdown.show {
+            display: block;
+        }
+
+        .new-tab-item {
+            padding: 12px 16px;
+            color: #ecf0f1;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .new-tab-item:last-child {
+            border-bottom: none;
+        }
+
+        .new-tab-item:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+        }
+
+        .new-tab-item-icon {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
         .terminal-status {
             display: flex;
             align-items: center;
             gap: 8px;
             padding: 0 20px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .status-dot {
@@ -196,6 +308,201 @@
             background-color: #000;
         }
 
+        /* 웰컴 화면 스타일 */
+        .welcome-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .welcome-screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .welcome-logo {
+            font-size: 72px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: #ecf0f1;
+            margin-bottom: 12px;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            color: #bdc3c7;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .welcome-button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            min-width: 160px;
+            justify-content: center;
+        }
+
+        .welcome-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+            background: linear-gradient(135deg, #2980b9, #3498db);
+        }
+
+        .welcome-button.secondary {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+        }
+
+        .welcome-button.secondary:hover {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            box-shadow: 0 8px 25px rgba(52, 73, 94, 0.3);
+        }
+
+        .welcome-shortcuts {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .shortcuts-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ecf0f1;
+            margin-bottom: 16px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            color: #bdc3c7;
+            font-size: 14px;
+        }
+
+        .shortcut-key {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        /* 클립보드 알림 */
+        .clipboard-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            z-index: 1000;
+            transform: translateX(300px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .clipboard-notification.show {
+            transform: translateX(0);
+        }
+
+        /* 탭 드롭다운 메뉴 */
+        .tab-dropdown {
+            position: relative;
+            margin-left: 8px;
+        }
+
+        .tab-dropdown-button {
+            background: none;
+            border: none;
+            color: #ecf0f1;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-dropdown-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #3498db;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #2c3e50;
+            border: 1px solid #3498db;
+            border-radius: 6px;
+            min-width: 200px;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            color: #ecf0f1;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+        }
+
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -229,6 +536,28 @@
                 font-size: 14px;
                 padding: 12px 16px;
             }
+
+            .tab-navigation {
+                gap: 4px;
+            }
+
+            .welcome-logo {
+                font-size: 48px;
+            }
+
+            .welcome-title {
+                font-size: 24px;
+            }
+
+            .welcome-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .welcome-button {
+                width: 100%;
+                max-width: 250px;
+            }
         }
     </style>
 </head>
@@ -252,13 +581,37 @@
 
         <div class="main-area">
             <div class="tab-header">
-                <div class="tab-navigation">
-                    <button class="tab-button active" data-tab="terminal">
-                        🖥️ Terminal
+                <div class="tab-navigation" id="tab-navigation">
+                    <div class="tab-container" id="tab-container">
+                        <!-- 탭들이 동적으로 추가됨 -->
+                    </div>
+                    <div class="new-tab-container">
+                        <button class="new-tab-button" id="new-tab-button" title="새 탭">
+                            <span>+</span>
+                            <span style="font-size: 12px;">▼</span>
+                        </button>
+                        <div class="new-tab-dropdown" id="new-tab-dropdown">
+                            <div class="new-tab-item" data-tab-type="terminal">
+                                <span class="new-tab-item-icon">🖥️</span>
+                                <span>새 터미널</span>
+                            </div>
+                            <div class="new-tab-item" data-tab-type="editor">
+                                <span class="new-tab-item-icon">📝</span>
+                                <span>코드 에디터</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-dropdown">
+                    <button class="tab-dropdown-button" id="tab-dropdown-button">
+                        ⋮
                     </button>
-                    <button class="tab-button" data-tab="code">
-                        📝 Code Editor
-                    </button>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <div class="dropdown-item" data-action="new-terminal">새 터미널</div>
+                        <div class="dropdown-item" data-action="new-editor">코드 에디터</div>
+                        <div class="dropdown-item" data-action="close-all">모든 탭 닫기</div>
+                        <div class="dropdown-item" data-action="close-others">다른 탭 닫기</div>
+                    </div>
                 </div>
                 <div class="terminal-status">
                     <div class="status-dot"></div>
@@ -266,70 +619,446 @@
                 </div>
             </div>
             
-            <div class="tab-content">
-                <div class="tab-pane active" id="terminal-pane">
-                    <iframe 
-                        class="tab-iframe terminal-iframe" 
-                        src="/ttyd/"
-                        title="Interactive Terminal">
-                    </iframe>
-                </div>
+            <div class="tab-content" id="tab-content">
+                <!-- 탭 패널들이 동적으로 추가됨 -->
                 
-                <div class="tab-pane" id="code-pane">
-                    <iframe 
-                        class="tab-iframe code-iframe" 
-                        src="/vscode"
-                        title="Code Editor">
-                    </iframe>
+                <!-- 웰컴 화면 -->
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-logo">🚀</div>
+                    <h1 class="welcome-title">ModuCoda에 오신 것을 환영합니다!</h1>
+                    <p class="welcome-subtitle">모듈형 학습 플랫폼으로 코딩을 시작해보세요</p>
+                    
+                    <div class="welcome-actions">
+                        <button class="welcome-button" onclick="window.tabManager?.createNewTab('terminal')">
+                            <span>🖥️</span>
+                            <span>새 터미널</span>
+                        </button>
+                        <button class="welcome-button secondary" onclick="window.tabManager?.createNewTab('editor')">
+                            <span>📝</span>
+                            <span>코드 에디터</span>
+                        </button>
+                    </div>
+                    
+                    <div class="welcome-shortcuts">
+                        <h3 class="shortcuts-title">키보드 단축키</h3>
+                        <div class="shortcut-item">
+                            <span>새 터미널</span>
+                            <span class="shortcut-key">Ctrl + T</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>새 에디터</span>
+                            <span class="shortcut-key">Ctrl + E</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>탭 닫기</span>
+                            <span class="shortcut-key">Ctrl + W</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>탭 전환</span>
+                            <span class="shortcut-key">Ctrl + Tab</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 클립보드 알림 -->
+    <div class="clipboard-notification" id="clipboard-notification">
+        텍스트가 터미널로 전송되었습니다.
+    </div>
+
     <script>
-        // 탭 전환 기능
-        class TabManager {
+        // 향상된 탭 매니저 클래스
+        class AdvancedTabManager {
             constructor() {
-                this.tabButtons = document.querySelectorAll('.tab-button');
-                this.tabPanes = document.querySelectorAll('.tab-pane');
+                this.tabs = new Map();
+                this.activeTabId = null;
+                this.tabCounter = 0;
+                this.tabContainer = document.getElementById('tab-container');
+                this.tabContent = document.getElementById('tab-content');
+                this.welcomeScreen = document.getElementById('welcome-screen');
+                this.newTabButton = document.getElementById('new-tab-button');
+                this.newTabDropdown = document.getElementById('new-tab-dropdown');
+                this.dropdownButton = document.getElementById('tab-dropdown-button');
+                this.dropdownMenu = document.getElementById('dropdown-menu');
+                
                 this.init();
+                this.showWelcomeScreen();
             }
 
             init() {
-                this.tabButtons.forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const tabId = e.currentTarget.getAttribute('data-tab');
-                        this.switchTab(tabId);
-                    });
+                // 새 탭 버튼 드롭다운 이벤트
+                this.newTabButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleNewTabDropdown();
                 });
+
+                // 새 탭 드롭다운 아이템 클릭
+                this.newTabDropdown.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const tabType = e.target.closest('.new-tab-item')?.getAttribute('data-tab-type');
+                    if (tabType) {
+                        this.createNewTab(tabType);
+                        this.closeNewTabDropdown();
+                    }
+                });
+
+                // 기존 드롭다운 메뉴 이벤트
+                this.dropdownButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleDropdown();
+                });
+
+                // 드롭다운 메뉴 아이템 클릭
+                this.dropdownMenu.addEventListener('click', (e) => {
+                    const action = e.target.getAttribute('data-action');
+                    if (action) {
+                        this.handleDropdownAction(action);
+                    }
+                });
+
+                // 외부 클릭 시 드롭다운 닫기
+                document.addEventListener('click', (e) => {
+                    if (!this.newTabDropdown.contains(e.target) && !this.newTabButton.contains(e.target)) {
+                        this.closeNewTabDropdown();
+                    }
+                    if (!this.dropdownMenu.contains(e.target) && !this.dropdownButton.contains(e.target)) {
+                        this.closeDropdown();
+                    }
+                });
+
+                // 키보드 단축키
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey) {
+                        switch (e.key) {
+                            case 't':
+                                e.preventDefault();
+                                this.createNewTab('terminal');
+                                break;
+                            case 'e':
+                                e.preventDefault();
+                                this.createNewTab('editor');
+                                break;
+                            case 'w':
+                                e.preventDefault();
+                                if (this.activeTabId) {
+                                    this.closeTab(this.activeTabId);
+                                }
+                                break;
+                            case 'Tab':
+                                e.preventDefault();
+                                this.switchToNextTab();
+                                break;
+                        }
+                    }
+                });
+
+                // 클립보드 이벤트 리스너
+                this.setupClipboardHandling();
+            }
+
+            showWelcomeScreen() {
+                this.hideAllTabs();
+                this.welcomeScreen.classList.add('active');
+                this.activeTabId = null;
+            }
+
+            hideWelcomeScreen() {
+                this.welcomeScreen.classList.remove('active');
+            }
+
+            hideAllTabs() {
+                this.tabs.forEach((tab) => {
+                    tab.button.classList.remove('active');
+                    tab.pane.classList.remove('active');
+                });
+            }
+
+            toggleNewTabDropdown() {
+                this.newTabDropdown.classList.toggle('show');
+                // 다른 드롭다운은 닫기
+                this.closeDropdown();
+            }
+
+            closeNewTabDropdown() {
+                this.newTabDropdown.classList.remove('show');
+            }
+
+            createNewTab(type, customTitle = null, isActive = true) {
+                this.tabCounter++;
+                const tabId = `${type}-${this.tabCounter}`;
+                
+                let title, src, icon;
+                
+                switch (type) {
+                    case 'terminal':
+                        title = customTitle || `Terminal ${this.tabCounter}`;
+                        src = `/ttyd/?arg=${encodeURIComponent(tabId)}`;
+                        icon = '🖥️';
+                        break;
+                    case 'editor':
+                        title = customTitle || 'Code Editor';
+                        src = '/vscode';
+                        icon = '📝';
+                        break;
+                    default:
+                        return;
+                }
+
+                // 탭 버튼 생성
+                const tabButton = document.createElement('button');
+                tabButton.className = 'tab-button';
+                tabButton.setAttribute('data-tab-id', tabId);
+                tabButton.innerHTML = `
+                    <span class="tab-icon">${icon}</span>
+                    <span class="tab-title">${title}</span>
+                    <button class="tab-close" onclick="event.stopPropagation(); window.tabManager.closeTab('${tabId}')">×</button>
+                `;
+                
+                tabButton.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('tab-close')) {
+                        this.switchTab(tabId);
+                    }
+                });
+
+                // 탭 패널 생성
+                const tabPane = document.createElement('div');
+                tabPane.className = 'tab-pane';
+                tabPane.id = `${tabId}-pane`;
+                
+                const iframe = document.createElement('iframe');
+                iframe.className = 'tab-iframe';
+                iframe.src = src;
+                iframe.title = title;
+                iframe.setAttribute('data-tab-id', tabId);
+                
+                tabPane.appendChild(iframe);
+
+                // DOM에 추가
+                this.tabContainer.appendChild(tabButton);
+                this.tabContent.appendChild(tabPane);
+
+                // 탭 정보 저장
+                this.tabs.set(tabId, {
+                    id: tabId,
+                    type: type,
+                    title: title,
+                    button: tabButton,
+                    pane: tabPane,
+                    iframe: iframe
+                });
+
+                // 웰컴 화면 숨기기
+                this.hideWelcomeScreen();
+
+                // 활성화
+                if (isActive || this.tabs.size === 1) {
+                    this.switchTab(tabId);
+                }
+
+                return tabId;
+            }
+
+            closeTab(tabId) {
+                const tab = this.tabs.get(tabId);
+                if (!tab) return;
+
+                // DOM에서 제거
+                tab.button.remove();
+                tab.pane.remove();
+
+                // 탭 정보 삭제
+                this.tabs.delete(tabId);
+
+                // 활성 탭이었다면 다른 탭으로 전환하거나 웰컴 화면 표시
+                if (this.activeTabId === tabId) {
+                    const remainingTabs = Array.from(this.tabs.keys());
+                    if (remainingTabs.length > 0) {
+                        this.switchTab(remainingTabs[0]);
+                    } else {
+                        this.showWelcomeScreen();
+                    }
+                }
             }
 
             switchTab(tabId) {
-                // 모든 탭 버튼에서 active 클래스 제거
-                this.tabButtons.forEach(button => {
-                    button.classList.remove('active');
+                const tab = this.tabs.get(tabId);
+                if (!tab) return;
+
+                // 웰컴 화면 숨기기
+                this.hideWelcomeScreen();
+
+                // 모든 탭 비활성화
+                this.hideAllTabs();
+
+                // 선택된 탭 활성화
+                tab.button.classList.add('active');
+                tab.pane.classList.add('active');
+                this.activeTabId = tabId;
+
+                // 탭이 보이도록 스크롤 조정
+                tab.button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+
+            switchToNextTab() {
+                const tabIds = Array.from(this.tabs.keys());
+                if (tabIds.length <= 1) return;
+
+                const currentIndex = tabIds.indexOf(this.activeTabId);
+                const nextIndex = (currentIndex + 1) % tabIds.length;
+                this.switchTab(tabIds[nextIndex]);
+            }
+
+            toggleDropdown() {
+                this.dropdownMenu.classList.toggle('show');
+            }
+
+            closeDropdown() {
+                this.dropdownMenu.classList.remove('show');
+            }
+
+            handleDropdownAction(action) {
+                this.closeDropdown();
+                
+                switch (action) {
+                    case 'new-terminal':
+                        this.createNewTab('terminal');
+                        break;
+                    case 'new-editor':
+                        this.createNewTab('editor');
+                        break;
+                    case 'close-all':
+                        this.closeAllTabs();
+                        break;
+                    case 'close-others':
+                        this.closeOtherTabs();
+                        break;
+                }
+            }
+
+            closeAllTabs() {
+                const tabIds = Array.from(this.tabs.keys());
+                tabIds.forEach(id => this.closeTab(id));
+            }
+
+            closeOtherTabs() {
+                if (!this.activeTabId) return;
+                
+                const tabIds = Array.from(this.tabs.keys()).filter(id => id !== this.activeTabId);
+                tabIds.forEach(id => this.closeTab(id));
+            }
+
+            setupClipboardHandling() {
+                // 페이지 전체에서 복사/붙여넣기 감지
+                document.addEventListener('paste', async (e) => {
+                    try {
+                        const text = e.clipboardData.getData('text');
+                        if (text && this.activeTabId) {
+                            await this.sendTextToActiveTab(text);
+                            this.showNotification('텍스트가 활성 탭으로 전송되었습니다.');
+                        }
+                    } catch (error) {
+                        console.warn('클립보드 접근 실패:', error);
+                    }
                 });
 
-                // 모든 탭 패널에서 active 클래스 제거
-                this.tabPanes.forEach(pane => {
-                    pane.classList.remove('active');
+                // Ctrl+V 단축키 처리
+                document.addEventListener('keydown', async (e) => {
+                    if (e.ctrlKey && e.key === 'v' && this.activeTabId) {
+                        try {
+                            const text = await navigator.clipboard.readText();
+                            if (text) {
+                                await this.sendTextToActiveTab(text);
+                                this.showNotification('클립보드 텍스트가 활성 탭으로 전송되었습니다.');
+                            }
+                        } catch (error) {
+                            console.warn('클립보드 읽기 실패:', error);
+                        }
+                    }
                 });
+            }
 
-                // 선택된 탭 버튼에 active 클래스 추가
-                const activeButton = document.querySelector(`[data-tab="${tabId}"]`);
-                if (activeButton) {
-                    activeButton.classList.add('active');
-                }
+            async sendTextToActiveTab(text) {
+                const activeTab = this.tabs.get(this.activeTabId);
+                if (!activeTab) return;
 
-                // 선택된 탭 패널에 active 클래스 추가
-                const activePane = document.getElementById(`${tabId}-pane`);
-                if (activePane) {
-                    activePane.classList.add('active');
+                try {
+                    // 터미널의 경우 iframe을 통해 텍스트 전송
+                    if (activeTab.type === 'terminal') {
+                        const iframe = activeTab.iframe;
+                        
+                        // ttyd 터미널에 텍스트와 Enter 키 전송
+                        iframe.contentWindow?.postMessage({
+                            type: 'terminal-input',
+                            data: text + '\r'
+                        }, '*');
+                        
+                        // 대안 방법: 직접 터미널에 입력 시도
+                        try {
+                            // ttyd의 xterm.js에 직접 접근 시도
+                            const terminalWindow = iframe.contentWindow;
+                            if (terminalWindow && terminalWindow.term) {
+                                terminalWindow.term.paste(text);
+                                // Enter 키 전송
+                                terminalWindow.term.paste('\r');
+                            }
+                        } catch (directError) {
+                            console.warn('직접 터미널 접근 실패, postMessage 사용:', directError);
+                        }
+                        
+                    } else if (activeTab.type === 'editor') {
+                        // 코드 에디터의 경우
+                        const iframe = activeTab.iframe;
+                        
+                        // VS Code에 텍스트 삽입 명령 전송
+                        iframe.contentWindow?.postMessage({
+                            type: 'editor-insert-text',
+                            data: text
+                        }, '*');
+                        
+                        // 대안 방법: VS Code API 호출 시도
+                        try {
+                            const editorWindow = iframe.contentWindow;
+                            if (editorWindow && editorWindow.vscode) {
+                                // VS Code 확장 API를 통해 텍스트 삽입
+                                editorWindow.vscode.postMessage({
+                                    command: 'insertText',
+                                    text: text
+                                });
+                            }
+                        } catch (vscodeError) {
+                            console.warn('VS Code API 접근 실패, postMessage 사용:', vscodeError);
+                        }
+                    }
+                } catch (error) {
+                    console.error('텍스트 전송 실패:', error);
+                    // 실패 시 클립보드에 복사
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        this.showNotification(`전송 실패. "${text}"가 클립보드에 복사되었습니다.`);
+                    } catch (clipboardError) {
+                        console.error('클립보드 복사도 실패:', clipboardError);
+                    }
                 }
+            }
+
+            showNotification(message) {
+                const notification = document.getElementById('clipboard-notification');
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            getActiveTab() {
+                return this.tabs.get(this.activeTabId);
             }
         }
 
-        // 동적 크기 조절 기능
+        // 동적 크기 조절 기능 (기존 코드 유지)
         class ResizableLayout {
             constructor() {
                 this.resizer = document.getElementById('resizer');
@@ -343,16 +1072,14 @@
             }
 
             init() {
-                // resizer에서만 시작
                 this.resizer.addEventListener('mousedown', this.startResize.bind(this));
                 this.resizer.addEventListener('touchstart', this.startResize.bind(this), { passive: false });
                 
-                // document 전체에서 이벤트 처리
                 document.addEventListener('mousemove', this.resize.bind(this));
                 document.addEventListener('touchmove', this.resize.bind(this), { passive: false });
                 document.addEventListener('mouseup', this.stopResize.bind(this));
                 document.addEventListener('touchend', this.stopResize.bind(this));
-                document.addEventListener('mouseleave', this.stopResize.bind(this)); // 브라우저 밖으로 나갔을 때
+                document.addEventListener('mouseleave', this.stopResize.bind(this));
                 
                 window.addEventListener('resize', this.handleResize.bind(this));
             }
@@ -362,7 +1089,6 @@
                 document.body.style.cursor = this.isMobile ? 'row-resize' : 'col-resize';
                 document.body.style.userSelect = 'none';
                 
-                // iframe에서 마우스 이벤트가 차단되지 않도록
                 const iframes = document.querySelectorAll('iframe');
                 iframes.forEach(iframe => {
                     iframe.style.pointerEvents = 'none';
@@ -382,7 +1108,6 @@
                 const clientY = e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY);
 
                 if (this.isMobile) {
-                    // 모바일: 상하 분할
                     const containerRect = this.container.getBoundingClientRect();
                     const containerHeight = containerRect.height;
                     const relativeY = clientY - containerRect.top;
@@ -390,7 +1115,6 @@
                     const percentage = (newHeight / containerHeight) * 100;
                     this.sidebar.style.height = `${percentage}%`;
                 } else {
-                    // 데스크톱: 좌우 분할
                     const containerRect = this.container.getBoundingClientRect();
                     const containerWidth = containerRect.width;
                     const relativeX = clientX - containerRect.left;
@@ -407,7 +1131,6 @@
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
                 
-                // iframe 포인터 이벤트 복원
                 const iframes = document.querySelectorAll('iframe');
                 iframes.forEach(iframe => {
                     iframe.style.pointerEvents = 'auto';
@@ -419,7 +1142,6 @@
                 this.isMobile = window.innerWidth <= 768;
                 
                 if (wasMobile !== this.isMobile) {
-                    // 모바일/데스크톱 전환 시 스타일 초기화
                     if (this.isMobile) {
                         this.sidebar.style.width = '100%';
                         this.sidebar.style.height = '40%';
@@ -433,8 +1155,76 @@
 
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            new TabManager();
+            window.tabManager = new AdvancedTabManager();
             new ResizableLayout();
+        });
+
+        // iframe 간 메시지 통신 처리
+        window.addEventListener('message', (event) => {
+            console.log('index.html에서 메시지 수신:', event.data);
+            
+            try {
+                if (event.data.type === 'terminal-ready') {
+                    // 터미널이 준비되었을 때의 처리
+                    console.log('터미널 준비됨:', event.data);
+                } else if (event.data.type === 'terminal-input') {
+                    // instructions.html에서 전송된 터미널 명령어 처리
+                    console.log('터미널 입력 요청:', event.data.data);
+                    if (window.tabManager && window.tabManager.activeTabId) {
+                        const activeTab = window.tabManager.getActiveTab();
+                        console.log('현재 활성 탭:', activeTab);
+                        if (activeTab && activeTab.type === 'terminal') {
+                            console.log('터미널에 명령어 전송:', event.data.data);
+                            // 활성 터미널에 명령어 전송
+                            activeTab.iframe.contentWindow?.postMessage({
+                                type: 'terminal-paste',
+                                data: event.data.data
+                            }, '*');
+                        } else {
+                            console.log('활성 탭이 터미널이 아님');
+                        }
+                    } else {
+                        console.log('탭 매니저나 활성 탭이 없음');
+                    }
+                } else if (event.data.type === 'editor-input') {
+                    // instructions.html에서 전송된 에디터 텍스트 처리
+                    console.log('에디터 입력 요청:', event.data.data);
+                    if (window.tabManager && window.tabManager.activeTabId) {
+                        const activeTab = window.tabManager.getActiveTab();
+                        console.log('현재 활성 탭:', activeTab);
+                        if (activeTab && activeTab.type === 'editor') {
+                            console.log('에디터에 텍스트 전송:', event.data.data);
+                            // 활성 에디터에 텍스트 전송
+                            activeTab.iframe.contentWindow?.postMessage({
+                                type: 'editor-insert',
+                                data: event.data.data
+                            }, '*');
+                        } else {
+                            console.log('활성 탭이 에디터가 아님');
+                        }
+                    } else {
+                        console.log('탭 매니저나 활성 탭이 없음');
+                    }
+                } else if (event.data.type === 'get-active-tab') {
+                    // instructions.html에서 현재 활성 탭 정보 요청
+                    console.log('활성 탭 정보 요청 받음');
+                    const activeTab = window.tabManager?.getActiveTab();
+                    const responseData = activeTab ? {
+                        id: activeTab.id,
+                        type: activeTab.type,
+                        title: activeTab.title
+                    } : null;
+                    
+                    console.log('활성 탭 정보 응답:', responseData);
+                    
+                    event.source.postMessage({
+                        type: 'active-tab-info',
+                        data: responseData
+                    }, event.origin);
+                }
+            } catch (error) {
+                console.error('메시지 처리 오류:', error);
+            }
         });
     </script>
 </body>

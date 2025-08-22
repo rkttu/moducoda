@@ -141,7 +141,7 @@
             gap: 6px;
         }
 
-        .copy-btn, .exec-btn {
+        .copy-btn, .input-btn {
             border: none;
             border-radius: 6px;
             padding: 6px 12px;
@@ -160,18 +160,18 @@
             background: #4b5563;
         }
 
-        .exec-btn {
+        .input-btn {
             background: #10b981;
             color: white;
         }
 
-        .exec-btn:hover {
+        .input-btn:hover {
             background: #059669;
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
         }
 
-        .copy-btn:active, .exec-btn:active {
+        .copy-btn:active, .input-btn:active {
             transform: scale(0.95);
         }
 
@@ -324,8 +324,8 @@
             
             <div class="command-box">
                 <div class="command-actions">
-                    <button class="copy-btn" onclick="copyCommand('pwd')">복사</button>
-                    <button class="exec-btn" onclick="launchCommand('pwd')">실행</button>
+                    <button class="copy-btn" onclick="copyCommand('pwd', event)">복사</button>
+                    <button class="input-btn" onclick="sendToActiveTabDirect('pwd', event)">입력</button>
                 </div>
                 pwd
             </div>
@@ -344,8 +344,8 @@
             
             <div class="command-box">
                 <div class="command-actions">
-                    <button class="copy-btn" onclick="copyCommand('ls -la')">복사</button>
-                    <button class="exec-btn" onclick="launchCommand('ls -la')">실행</button>
+                    <button class="copy-btn" onclick="copyCommand('ls -la', event)">복사</button>
+                    <button class="input-btn" onclick="sendToActiveTab('ls -la', event)">입력</button>
                 </div>
                 ls -la
             </div>
@@ -371,8 +371,8 @@ drwxr-xr-x 2 user user 4096 Jan 15 10:30 Documents
             
             <div class="command-box">
                 <div class="command-actions">
-                    <button class="copy-btn" onclick="copyCommand('mkdir moducoda-practice')">복사</button>
-                    <button class="exec-btn" onclick="launchCommand('mkdir moducoda-practice')">실행</button>
+                    <button class="copy-btn" onclick="copyCommand('mkdir moducoda-practice', event)">복사</button>
+                    <button class="input-btn" onclick="sendToActiveTab('mkdir moducoda-practice', event)">입력</button>
                 </div>
                 mkdir moducoda-practice
             </div>
@@ -381,8 +381,8 @@ drwxr-xr-x 2 user user 4096 Jan 15 10:30 Documents
             
             <div class="command-box">
                 <div class="command-actions">
-                    <button class="copy-btn" onclick="copyCommand('ls')">복사</button>
-                    <button class="exec-btn" onclick="launchCommand('ls')">실행</button>
+                    <button class="copy-btn" onclick="copyCommand('ls', event)">복사</button>
+                    <button class="input-btn" onclick="sendToActiveTab('ls', event)">입력</button>
                 </div>
                 ls
             </div>
@@ -398,14 +398,16 @@ Documents  moducoda-practice
             <p><strong>cd</strong> 명령어로 방금 만든 디렉토리로 이동해보겠습니다.</p>
             
             <div class="command-box">
-                <button class="copy-btn" onclick="copyCommand('cd moducoda-practice')">복사</button>
+                <button class="copy-btn" onclick="copyCommand('cd moducoda-practice', event)">복사</button>
+                <button class="input-btn" onclick="sendToActiveTab('cd moducoda-practice', event)">입력</button>
                 cd moducoda-practice
             </div>
             
             <p>이동했는지 확인하기 위해 다시 <code>pwd</code>를 실행해보세요:</p>
             
             <div class="command-box">
-                <button class="copy-btn" onclick="copyCommand('pwd')">복사</button>
+                <button class="copy-btn" onclick="copyCommand('pwd', event)">복사</button>
+                <button class="input-btn" onclick="sendToActiveTab('pwd', event)">입력</button>
                 pwd
             </div>
             
@@ -426,57 +428,272 @@ Documents  moducoda-practice
     </div>
 
     <script>
-        // 터미널 명령어 실행 함수
-        function launchCommand(command) {
+        // 현재 활성화된 탭으로 명령어 전송 (대안 방법)
+        function sendToActiveTabDirect(command, event) {
+            console.log('sendToActiveTabDirect 호출됨:', command);
+            
             try {
-                // 부모 창에서 터미널 iframe 찾기 (iframe 중첩 구조 고려)
-                var terminalFrame = window.parent.document.querySelector('iframe.terminal-iframe');
+                // 부모 창의 tabManager에 직접 접근
+                const tabManager = window.parent?.tabManager;
                 
-                // 터미널에 명령어 붙여넣기
-                terminalFrame.contentWindow.term.paste(command);
+                if (!tabManager) {
+                    console.log('탭 매니저가 없음 - 메시지 방식 시도');
+                    sendToActiveTab(command, event);
+                    return;
+                }
                 
-                // Enter 키 이벤트 발생
-                var inputArea = terminalFrame.contentDocument.querySelector("textarea.xterm-helper-textarea");
-                inputArea.dispatchEvent(new KeyboardEvent('keypress', {charCode: 13}));
+                console.log('탭 매니저 발견, 활성 탭ID:', tabManager.activeTabId);
                 
-                // 성공 피드백
-                event.target.textContent = '실행됨!';
-                event.target.style.background = '#059669';
+                const activeTab = tabManager.getActiveTab();
+                console.log('활성 탭:', activeTab);
                 
-                setTimeout(() => {
-                    event.target.textContent = '실행';
-                    event.target.style.background = '#10b981';
-                }, 2000);                
+                if (!activeTab) {
+                    console.log('활성 탭이 없음 - 복사로 폴백');
+                    copyCommand(command, event);
+                    showFeedback(event.target, '복사됨', '#f59e0b');
+                    return;
+                }
+                
+                // 탭 종류에 따라 분기처리
+                if (activeTab.type === 'terminal') {
+                    console.log('터미널에 직접 전송:', command);
+                    
+                    // 터미널 iframe에 직접 명령어 전송
+                    const iframe = activeTab.iframe;
+                    
+                    // 여러 방법으로 시도
+                    try {
+                        // iframe이 로드된 후 실행
+                        iframe.onload = () => {
+                            console.log('터미널 iframe 로드 완료');
+                        };
+                        
+                        // 방법 1: 클립보드 API를 통한 붙여넣기 시뮬레이션
+                        const sendToTerminal = async () => {
+                            try {
+                                // 터미널 창에 포커스
+                                iframe.contentWindow?.focus();
+                                
+                                // 클립보드에 명령어 복사
+                                await navigator.clipboard.writeText(command);
+                                
+                                // 터미널 문서에 붙여넣기 이벤트 발생
+                                const termDoc = iframe.contentDocument;
+                                if (termDoc) {
+                                    const pasteEvent = new ClipboardEvent('paste', {
+                                        clipboardData: new DataTransfer()
+                                    });
+                                    pasteEvent.clipboardData.setData('text/plain', command);
+                                    
+                                    // 터미널의 활성 요소에 붙여넣기 이벤트 발생
+                                    const activeElement = termDoc.activeElement || termDoc.body;
+                                    activeElement.dispatchEvent(pasteEvent);
+                                    
+                                    // Enter 키 시뮬레이션
+                                    setTimeout(() => {
+                                        const enterEvent = new KeyboardEvent('keydown', {
+                                            key: 'Enter',
+                                            code: 'Enter',
+                                            keyCode: 13,
+                                            which: 13,
+                                            bubbles: true
+                                        });
+                                        activeElement.dispatchEvent(enterEvent);
+                                    }, 100);
+                                }
+                            } catch (clipError) {
+                                console.error('클립보드 방식 실패:', clipError);
+                            }
+                        };
+                        
+                        // 방법 2: ttyd의 term 객체에 직접 접근
+                        setTimeout(() => {
+                            const termWindow = iframe.contentWindow;
+                            if (termWindow && termWindow.term) {
+                                console.log('term 객체 발견, paste 시도');
+                                try {
+                                    termWindow.term.paste(command + '\r');
+                                } catch (termPasteError) {
+                                    console.log('term.paste 실패, 개별 입력 시도');
+                                    // 문자 하나씩 입력
+                                    for (let char of command) {
+                                        termWindow.term.write(char);
+                                    }
+                                    termWindow.term.write('\r');
+                                }
+                            } else {
+                                console.log('term 객체 없음, 클립보드 방식 시도');
+                                sendToTerminal();
+                            }
+                        }, 100);
+                        
+                        // 방법 3: postMessage
+                        iframe.contentWindow?.postMessage({
+                            type: 'terminal-command',
+                            command: command
+                        }, '*');
+                        
+                    } catch (termError) {
+                        console.error('터미널 전송 실패:', termError);
+                    }
+                    
+                } else if (activeTab.type === 'editor') {
+                    console.log('에디터에 직접 전송:', command);
+                    
+                    const iframe = activeTab.iframe;
+                    iframe.contentWindow?.postMessage({
+                        type: 'insertText',
+                        data: command
+                    }, '*');
+                } else {
+                    console.log('알 수 없는 탭 타입:', activeTab.type);
+                    copyCommand(command, event);
+                    showFeedback(event.target, '복사됨', '#f59e0b');
+                    return;
+                }
+                
+                showFeedback(event.target, '전송됨!', '#059669');
+                
             } catch (error) {
-                console.error('명령어 실행 실패:', error);
-                
-                // 실패 시 복사로 폴백
-                copyCommand(command);
-                
-                // 사용자에게 안내
-                event.target.textContent = '복사됨';
-                event.target.style.background = '#f59e0b';
-                
-                setTimeout(() => {
-                    event.target.textContent = '실행';
-                    event.target.style.background = '#10b981';
-                }, 2000);
-                
-                // 선택적: 사용자에게 알림
-                console.log('터미널 직접 실행에 실패하여 클립보드에 복사했습니다. 터미널에서 Ctrl+V로 붙여넣으세요.');
+                console.error('직접 전송 실패:', error);
+                copyCommand(command, event);
+                showFeedback(event.target, '복사됨', '#f59e0b');
             }
         }
 
-        function copyCommand(command) {
+        // 현재 활성화된 탭으로 명령어 전송
+        function sendToActiveTab(command, event) {
+            console.log('sendToActiveTab 호출됨:', command);
+            
+            try {
+                // 부모 창 확인
+                if (!window.parent) {
+                    console.error('부모 창이 없습니다.');
+                    copyCommand(command, event);
+                    showFeedback(event.target, '복사됨', '#f59e0b');
+                    return;
+                }
+                
+                console.log('부모 창에 활성 탭 정보 요청 중...');
+                
+                // 부모 창에 활성 탭 정보 요청
+                window.parent.postMessage({
+                    type: 'get-active-tab'
+                }, '*');
+                
+                // 응답을 기다리기 위한 Promise
+                const waitForActiveTab = new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => {
+                        console.error('활성 탭 정보 응답 시간 초과');
+                        reject(new Error('활성 탭 정보 응답 시간 초과'));
+                    }, 3000); // 3초로 늘림
+                    
+                    const messageHandler = (e) => {
+                        console.log('메시지 수신:', e.data);
+                        if (e.data.type === 'active-tab-info') {
+                            console.log('활성 탭 정보 수신:', e.data.data);
+                            clearTimeout(timeout);
+                            window.removeEventListener('message', messageHandler);
+                            resolve(e.data.data);
+                        }
+                    };
+                    
+                    window.addEventListener('message', messageHandler);
+                });
+                
+                waitForActiveTab.then(activeTabInfo => {
+                    console.log('활성 탭 정보 처리:', activeTabInfo);
+                    
+                    if (!activeTabInfo) {
+                        console.log('활성 탭이 없음 - 복사로 폴백');
+                        copyCommand(command, event);
+                        showFeedback(event.target, '복사됨', '#f59e0b');
+                        return;
+                    }
+                    
+                    // 탭 종류에 따라 분기처리하여 메시지 전송
+                    if (activeTabInfo.type === 'terminal') {
+                        console.log('터미널에 명령어 전송:', command);
+                        window.parent.postMessage({
+                            type: 'terminal-input',
+                            data: command + '\r'
+                        }, '*');
+                    } else if (activeTabInfo.type === 'editor') {
+                        console.log('에디터에 텍스트 전송:', command);
+                        window.parent.postMessage({
+                            type: 'editor-input',
+                            data: command
+                        }, '*');
+                    } else {
+                        console.log('알 수 없는 탭 타입:', activeTabInfo.type);
+                        copyCommand(command, event);
+                        showFeedback(event.target, '복사됨', '#f59e0b');
+                        return;
+                    }
+                    
+                    showFeedback(event.target, '전송됨!', '#059669');
+                    
+                }).catch(error => {
+                    console.error('활성 탭 정보 획득 실패:', error);
+                    copyCommand(command, event);
+                    showFeedback(event.target, '복사됨', '#f59e0b');
+                });
+                
+            } catch (error) {
+                console.error('명령어 전송 실패:', error);
+                copyCommand(command, event);
+                showFeedback(event.target, '복사됨', '#f59e0b');
+            }
+        }
+        
+        // 디버깅용 함수
+        function testTabManager() {
+            console.log('=== 탭 매니저 테스트 ===');
+            console.log('window.parent:', window.parent);
+            console.log('window.parent.tabManager:', window.parent?.tabManager);
+            
+            if (window.parent?.tabManager) {
+                const tm = window.parent.tabManager;
+                console.log('활성 탭 ID:', tm.activeTabId);
+                console.log('전체 탭 수:', tm.tabs.size);
+                console.log('활성 탭:', tm.getActiveTab());
+                
+                // 모든 탭 정보 출력
+                tm.tabs.forEach((tab, id) => {
+                    console.log(`탭 ${id}:`, {
+                        type: tab.type,
+                        title: tab.title,
+                        iframe: tab.iframe
+                    });
+                });
+            }
+        }
+        
+        // 페이지 로드 후 테스트 실행
+        window.addEventListener('load', () => {
+            setTimeout(testTabManager, 1000);
+        });
+
+        // 버튼 피드백 표시
+        function showFeedback(button, text, color) {
+            const originalText = button.textContent;
+            const originalColor = button.style.background;
+            
+            button.textContent = text;
+            button.style.background = color;
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = originalColor;
+            }, 2000);
+        }
+
+        function copyCommand(command, event) {
+            const button = event.target;
+            
             navigator.clipboard.writeText(command).then(function() {
                 // 복사 성공 피드백
-                event.target.textContent = '복사됨!';
-                event.target.style.background = '#10b981';
-                
-                setTimeout(() => {
-                    event.target.textContent = '복사';
-                    event.target.style.background = '#6b7280';
-                }, 2000);
+                showFeedback(button, '복사됨!', '#10b981');
             }).catch(function(err) {
                 console.error('복사 실패:', err);
                 // 폴백: 텍스트 선택
@@ -487,10 +704,7 @@ Documents  moducoda-practice
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
                 
-                event.target.textContent = '복사됨!';
-                setTimeout(() => {
-                    event.target.textContent = '복사';
-                }, 2000);
+                showFeedback(button, '복사됨!', '#10b981');
             });
         }
 
