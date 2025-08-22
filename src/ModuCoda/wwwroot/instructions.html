@@ -317,115 +317,14 @@
             <small>진행률: 1/4 단계 완료</small>
         </div>
 
-        <div class="step">
-            <span class="step-number">1</span>
-            <h3>현재 위치 확인하기 <span class="badge">기초</span></h3>
-            <p>Linux에서 가장 기본적인 명령어인 <strong>pwd</strong>를 사용하여 현재 작업 디렉토리를 확인해보겠습니다.</p>
-            
-            <div class="command-box">
-                <div class="command-actions">
-                    <button class="copy-btn" onclick="copyCommand('pwd', event)">복사</button>
-                    <button class="input-btn" onclick="sendToActiveTabDirect('pwd', event)">입력</button>
-                </div>
-                pwd
-            </div>
-            
-            <div class="expected-output">
-/home/user
-            </div>
-            
-            <p><code>pwd</code>는 "Print Working Directory"의 줄임말로, 현재 있는 폴더의 전체 경로를 보여줍니다.</p>
-        </div>
-
-        <div class="step">
-            <span class="step-number">2</span>
-            <h3>디렉토리 내용 확인하기 <span class="badge">기초</span></h3>
-            <p><strong>ls</strong> 명령어로 현재 디렉토리에 있는 파일과 폴더들을 확인해보세요.</p>
-            
-            <div class="command-box">
-                <div class="command-actions">
-                    <button class="copy-btn" onclick="copyCommand('ls -la', event)">복사</button>
-                    <button class="input-btn" onclick="sendToActiveTab('ls -la', event)">입력</button>
-                </div>
-                ls -la
-            </div>
-            
-            <div class="expected-output">
-total 24
-drwxr-xr-x 3 user user 4096 Jan 15 10:30 .
-drwxr-xr-x 3 root root 4096 Jan 15 10:25 ..
--rw-r--r-- 1 user user  220 Jan 15 10:25 .bash_logout
--rw-r--r-- 1 user user 3526 Jan 15 10:25 .bashrc
-drwxr-xr-x 2 user user 4096 Jan 15 10:30 Documents
-            </div>
-            
-            <div class="tip">
-                <strong>팁:</strong> <code>-la</code> 옵션은 숨겨진 파일(.)까지 자세한 정보와 함께 보여줍니다. <code>-l</code>은 자세한 정보, <code>-a</code>는 모든 파일을 의미합니다.
-            </div>
-        </div>
-
-        <div class="step">
-            <span class="step-number">3</span>
-            <h3>새 디렉토리 만들기 <span class="badge">실습</span></h3>
-            <p><strong>mkdir</strong> 명령어로 새로운 폴더를 만들어보겠습니다.</p>
-            
-            <div class="command-box">
-                <div class="command-actions">
-                    <button class="copy-btn" onclick="copyCommand('mkdir moducoda-practice', event)">복사</button>
-                    <button class="input-btn" onclick="sendToActiveTab('mkdir moducoda-practice', event)">입력</button>
-                </div>
-                mkdir moducoda-practice
-            </div>
-            
-            <p>이제 <code>ls</code> 명령어로 새로 만든 디렉토리가 생성되었는지 확인해보세요:</p>
-            
-            <div class="command-box">
-                <div class="command-actions">
-                    <button class="copy-btn" onclick="copyCommand('ls', event)">복사</button>
-                    <button class="input-btn" onclick="sendToActiveTab('ls', event)">입력</button>
-                </div>
-                ls
-            </div>
-            
-            <div class="expected-output">
-Documents  moducoda-practice
-            </div>
-        </div>
-
-        <div class="step">
-            <span class="step-number">4</span>
-            <h3>디렉토리 이동하기 <span class="badge">실습</span></h3>
-            <p><strong>cd</strong> 명령어로 방금 만든 디렉토리로 이동해보겠습니다.</p>
-            
-            <div class="command-box">
-                <button class="copy-btn" onclick="copyCommand('cd moducoda-practice', event)">복사</button>
-                <button class="input-btn" onclick="sendToActiveTab('cd moducoda-practice', event)">입력</button>
-                cd moducoda-practice
-            </div>
-            
-            <p>이동했는지 확인하기 위해 다시 <code>pwd</code>를 실행해보세요:</p>
-            
-            <div class="command-box">
-                <button class="copy-btn" onclick="copyCommand('pwd', event)">복사</button>
-                <button class="input-btn" onclick="sendToActiveTab('pwd', event)">입력</button>
-                pwd
-            </div>
-            
-            <div class="expected-output">
-/home/user/moducoda-practice
-            </div>
-            
-            <div class="warning">
-                <strong>주의:</strong> Linux는 대소문자를 구분합니다. 디렉토리나 파일 이름을 정확히 입력해야 합니다.
-            </div>
-        </div>
-
-        <div class="tip">
-            <strong>다음 단계 미리보기:</strong> 다음에는 파일 생성, 편집, 그리고 권한 관리에 대해 학습하게 됩니다. 현재 학습한 기본 명령어들을 충분히 연습해보세요!
-        </div>
+        <!-- 동적으로 로드될 마크다운 콘텐츠 -->
+        <div id="md-content"></div>
 
         <button class="next-btn" onclick="nextStep()">다음 단계로 →</button>
     </div>
+
+    <!-- Marked: Markdown 렌더러 (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <script>
         // 현재 활성화된 탭으로 명령어 전송 (대안 방법)
@@ -767,6 +666,215 @@ Documents  moducoda-practice
                 nextStep();
             }
         });
+
+        // === 마크다운 로더 ===
+        (function loadMarkdown() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const docParam = params.get('doc');
+                // 기본 문서 경로
+                const mdPath = docParam ? decodeURIComponent(docParam) : 'content/instructions.md';
+
+                fetch(mdPath, { cache: 'no-store' })
+                    .then((res) => {
+                        if (!res.ok) throw new Error(`문서를 불러오지 못했습니다: ${res.status}`);
+                        return res.text();
+                    })
+                    .then((md) => {
+                        // 마크다운을 HTML로 변환
+                        const html = window.marked ? marked.parse(md) : md;
+                        const container = document.getElementById('md-content');
+                        container.innerHTML = html;
+
+                        // 섹션을 스텝 형태로 구성하고 번호/뱃지 적용
+                        enhanceSections(container);
+
+                        // 단일 행 셸 코드블록을 인터랙티브 커맨드 박스로 변환
+                        enhanceCommandBlocks(container);
+
+                        // "예상 출력" 코드 블록은 시각적 박스로 래핑
+                        wrapExpectedOutputs(container);
+
+                        // 렌더 후 애니메이션
+                        animateSteps();
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        const container = document.getElementById('md-content');
+                        container.innerHTML = '<div class="warning"><strong>문서 로드 실패:</strong> 콘텐츠를 불러오는 중 문제가 발생했습니다. 페이지를 새로고침하거나 나중에 다시 시도하세요.</div>';
+                    });
+            } catch (e) {
+                console.error('마크다운 로더 초기화 실패:', e);
+            }
+        })();
+
+        function enhanceCommandBlocks(scope) {
+            const pres = Array.from(scope.querySelectorAll('pre > code'));
+            pres.forEach(codeEl => {
+                const className = (codeEl.className || '').toLowerCase();
+                const infoMatch = className.match(/(?:^|\s)language-([^\s]+)/);
+                const infoRaw = infoMatch ? infoMatch[1] : '';
+
+                const { baseLang, copyOverride, execOverride } = parseFenceInfo(infoRaw);
+
+                const text = codeEl.textContent.trim();
+                const lineCount = text.split(/\r?\n/).length;
+
+                const isShell = /^(bash|sh|shell)$/.test(baseLang || '');
+                const hasFlags = copyOverride !== undefined || execOverride !== undefined;
+                const isSingleLine = lineCount === 1;
+
+                // 기본 동작: 쉘 단일행은 상호작용 박스로, 그 외는 플래그가 있을 때만 상호작용 박스로 승격
+                if (!isSingleLine) return;
+                if (!(isShell || hasFlags)) return;
+
+                // 버튼 표시 기본값: 쉘은 둘 다 표시, 그 외는 복사만 표시
+                let showCopy = isShell ? true : true;
+                let showExec = isShell ? true : false;
+
+                if (copyOverride !== undefined) showCopy = copyOverride;
+                if (execOverride !== undefined) showExec = execOverride;
+
+                const pre = codeEl.parentElement;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'command-box';
+
+                const actions = document.createElement('div');
+                actions.className = 'command-actions';
+
+                if (showCopy) {
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn';
+                    copyBtn.textContent = '복사';
+                    copyBtn.addEventListener('click', (e) => copyCommand(text, e));
+                    actions.appendChild(copyBtn);
+                }
+
+                if (showExec) {
+                    const inputBtn = document.createElement('button');
+                    inputBtn.className = 'input-btn';
+                    inputBtn.textContent = '입력';
+                    inputBtn.addEventListener('click', (e) => sendToActiveTab(text, e));
+                    actions.appendChild(inputBtn);
+                }
+
+                if (actions.childElementCount > 0) {
+                    wrapper.appendChild(actions);
+                }
+                wrapper.appendChild(document.createTextNode(text));
+
+                // pre 요소를 대체
+                pre.replaceWith(wrapper);
+            });
+        }
+
+        function parseFenceInfo(infoRaw) {
+            // infoRaw 예: "bash+exec-copy", "php+exec-copy", "js-exec+copy", "+copy", "shell"
+            let copyOverride; // true/false/undefined
+            let execOverride; // true/false/undefined
+
+            // 추출: +copy/-copy/+exec/-exec
+            const flagRegex = /([+-])(copy|exec)/g;
+            const flags = [...infoRaw.matchAll(flagRegex)];
+            flags.forEach((m) => {
+                const sign = m[1];
+                const key = m[2];
+                const val = sign === '+';
+                if (key === 'copy') copyOverride = val;
+                if (key === 'exec') execOverride = val;
+            });
+
+            // baseLang: 플래그 표현을 제거한 나머지에서 양끝 +,- 및 구분기호 제거
+            const base = infoRaw.replace(flagRegex, '')
+                .replace(/[+\-]+/g, '-')
+                .replace(/^-+/, '')
+                .replace(/-+$/, '')
+                .trim();
+
+            const baseLang = base || null;
+            return { baseLang, copyOverride, execOverride };
+        }
+
+        function wrapExpectedOutputs(scope) {
+            // "예상 출력" 텍스트 다음의 첫 번째 코드 블록을 .expected-output으로 감싸기
+            const elements = Array.from(scope.querySelectorAll('p, h2, h3, h4, h5, h6'));
+            elements.forEach(el => {
+                const t = (el.textContent || '').trim();
+                if (t.startsWith('예상 출력')) {
+                    let sib = el.nextElementSibling;
+                    while (sib && sib.tagName !== 'PRE') sib = sib.nextElementSibling;
+                    if (sib && sib.tagName === 'PRE') {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'expected-output';
+                        sib.replaceWith(wrapper);
+                        wrapper.appendChild(sib);
+                    }
+                }
+            });
+        }
+
+        function enhanceSections(scope) {
+            // H2 기준으로 .step 그룹 생성 및 번호/뱃지 구성
+            const nodes = Array.from(scope.children);
+            let step = 0;
+            for (let i = 0; i < nodes.length; i++) {
+                const node = nodes[i];
+                if (node.tagName === 'H2') {
+                    step += 1;
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'step';
+
+                    const num = document.createElement('span');
+                    num.className = 'step-number';
+                    num.textContent = String(step);
+
+                    // 제목 텍스트와 괄호의 레벨 추출
+                    const title = node.textContent || '';
+                    const m = title.match(/\(([^)]+)\)\s*$/);
+                    const clean = m ? title.replace(m[0], '').trim() : title;
+
+                    const h3 = document.createElement('h3');
+                    h3.textContent = clean;
+                    if (m) {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge';
+                        badge.textContent = m[1];
+                        h3.appendChild(document.createTextNode(' '));
+                        h3.appendChild(badge);
+                    }
+
+                    wrapper.appendChild(num);
+                    wrapper.appendChild(h3);
+
+                    // 다음 H2 전까지 이동
+                    let cursor = node.nextSibling;
+                    while (cursor && !(cursor.nodeType === 1 && cursor.tagName === 'H2')) {
+                        const next = cursor.nextSibling;
+                        wrapper.appendChild(cursor);
+                        cursor = next;
+                    }
+
+                    node.replaceWith(wrapper);
+                    // DOM 변경으로 목록 갱신 및 인덱스 재설정
+                    const refreshed = Array.from(scope.children);
+                    nodes.length = 0; nodes.push(...refreshed);
+                    i = nodes.indexOf(wrapper);
+                }
+            }
+        }
+
+        function animateSteps() {
+            const steps = document.querySelectorAll('.step');
+            steps.forEach((step, index) => {
+                step.style.opacity = '0';
+                step.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    step.style.transition = 'all 0.6s ease';
+                    step.style.opacity = '1';
+                    step.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        }
     </script>
 </body>
 </html>
