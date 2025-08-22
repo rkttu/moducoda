@@ -14,6 +14,13 @@ Making interactive learning accessible to everyone, everywhere. 🚀
 
 ![Screenshot](./Screenshot.jpg)
 
+## Single-Course Container Image
+
+이 애플리케이션은 하나의 Docker 이미지 안에 하나의 학습 코스를 포함하는 사용 패턴을 지원합니다. 기본적으로 `src/ModuCoda/wwwroot/content/index.json`이 존재하면 `/instructions` 페이지가 해당 코스를 자동 로드하여 단계별 안내를 제공합니다.
+
+- 코스 교체: 이미지 빌드 시 `wwwroot/content` 폴더의 파일들을 원하는 코스로 교체하세요.
+- 다중 코스가 필요 없다면 쿼리 파라미터 없이 `/instructions`만 접근하면 됩니다.
+
 ## 🚀 Features
 
 - **YARP Reverse Proxy**: High-performance reverse proxy using Microsoft's YARP (Yet Another Reverse Proxy)
