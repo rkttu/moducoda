@@ -107,6 +107,17 @@
             display: flex;
             align-items: center;
             height: 60px;
+            position: relative;
+            overflow: visible;
+        }
+
+        /* Wrapper to anchor scroll buttons consistently */
+        .tab-scroller {
+            position: relative;
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
         }
 
         .tab-navigation {
@@ -119,6 +130,8 @@
             -ms-overflow-style: none;
             scroll-behavior: smooth;
             position: relative;
+            /* Keep content away from fixed scroll buttons */
+            padding: 0 44px;
         }
 
         .tab-navigation::-webkit-scrollbar {
@@ -156,17 +169,20 @@
         }
 
         .tab-scroll-left {
-            left: 5px;
+            left: 6px;
         }
 
         .tab-scroll-right {
-            right: 5px;
+            right: 6px;
         }
 
         .tab-container {
             display: flex;
             align-items: center;
             min-width: 0;
+            /* Prevent shrinking and allow content width to define scrollable area */
+            flex: 0 0 auto;
+            width: max-content;
         }
 
         .tab-button {
@@ -184,9 +200,32 @@
             gap: 8px;
             white-space: nowrap;
             position: relative;
-            max-width: 200px;
+            max-width: 240px;
             overflow: hidden;
             text-overflow: ellipsis;
+            /* Keep each tab button size; don't shrink */
+            flex: 0 0 auto;
+            flex-shrink: 0;
+        }
+
+        /* Drag & drop cues */
+        .tab-button[draggable="true"] { cursor: grab; }
+        .tab-button.dragging { opacity: 0.6; cursor: grabbing; }
+        .tab-button.drag-over-left::before,
+        .tab-button.drag-over-right::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            bottom: 10%;
+            width: 3px;
+            background: #3498db;
+        }
+        .tab-button.drag-over-left::before { left: 0; }
+        .tab-button.drag-over-right::before { right: 0; }
+
+        .tab-button .tab-title {
+            min-width: 0;
+            flex: 0 1 auto;
         }
 
         .tab-button:hover {
@@ -215,6 +254,9 @@
             justify-content: center;
             font-size: 12px;
             transition: all 0.2s ease;
+            flex: 0 0 16px;
+            pointer-events: auto;
+            z-index: 1;
         }
 
         .tab-close:hover {
@@ -226,6 +268,7 @@
         .new-tab-container {
             position: relative;
             margin-left: 8px;
+            z-index: 1001;
         }
 
         .new-tab-button {
@@ -321,6 +364,14 @@
             font-size: 12px;
             font-weight: 500;
         }
+
+        /* Connectivity state variants */
+        .status-dot.online { background-color: #2ecc71; animation: pulse 2s infinite; }
+        .status-text.online { color: #2ecc71; }
+        .status-dot.checking { background-color: #f39c12; animation: pulse 1s infinite; }
+        .status-text.checking { color: #f39c12; }
+        .status-dot.offline { background-color: #e74c3c; animation: none; }
+        .status-text.offline { color: #e74c3c; }
 
         .tab-content {
             flex: 1;
@@ -473,7 +524,8 @@
         /* 클립보드 알림 */
         .clipboard-notification {
             position: fixed;
-            top: 20px;
+            top: auto;
+            bottom: 20px;
             right: 20px;
             background: #2ecc71;
             color: white;
@@ -482,12 +534,16 @@
             font-size: 14px;
             z-index: 1000;
             transform: translateX(300px);
-            transition: transform 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .clipboard-notification.show {
             transform: translateX(0);
+            opacity: 1;
+            pointer-events: auto;
         }
 
         /* 탭 드롭다운 메뉴 */
@@ -639,32 +695,14 @@
 
         <div class="main-area">
             <div class="tab-header">
-                <div class="tab-navigation" id="tab-navigation">
-                    <button class="tab-scroll-button tab-scroll-left" id="tab-scroll-left" title="이전 탭들">
-                        ◀
-                    </button>
-                    <div class="tab-container" id="tab-container">
-                        <!-- 탭들이 동적으로 추가됨 -->
-                    </div>
-                    <button class="tab-scroll-button tab-scroll-right" id="tab-scroll-right" title="다음 탭들">
-                        ▶
-                    </button>
-                    <div class="new-tab-container">
-                        <button class="new-tab-button" id="new-tab-button" title="새 탭" onclick="window.tabManager?.toggleNewTabDropdown()">
-                            <span>+</span>
-                            <span style="font-size: 12px;">▼</span>
-                        </button>
-                        <div class="new-tab-dropdown" id="new-tab-dropdown">
-                            <div class="new-tab-item" data-tab-type="terminal">
-                                <span class="new-tab-item-icon">🖥️</span>
-                                <span>새 터미널</span>
-                            </div>
-                            <div class="new-tab-item" data-tab-type="editor">
-                                <span class="new-tab-item-icon">📝</span>
-                                <span>코드 에디터</span>
-                            </div>
+                <div class="tab-scroller">
+                    <div class="tab-navigation" id="tab-navigation">
+                        <div class="tab-container" id="tab-container">
+                            <!-- 탭들이 동적으로 추가됨 -->
                         </div>
                     </div>
+                    <button class="tab-scroll-button tab-scroll-left" id="tab-scroll-left" title="이전 탭들">◀</button>
+                    <button class="tab-scroll-button tab-scroll-right" id="tab-scroll-right" title="다음 탭들">▶</button>
                 </div>
                 <div class="tab-dropdown">
                     <button class="tab-dropdown-button" id="tab-dropdown-button">
@@ -703,25 +741,7 @@
                         </button>
                     </div>
                     
-                    <div class="welcome-shortcuts">
-                        <h3 class="shortcuts-title">키보드 단축키</h3>
-                        <div class="shortcut-item">
-                            <span>새 터미널</span>
-                            <span class="shortcut-key">Ctrl + T</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <span>새 에디터</span>
-                            <span class="shortcut-key">Ctrl + E</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <span>탭 닫기</span>
-                            <span class="shortcut-key">Ctrl + W</span>
-                        </div>
-                        <div class="shortcut-item">
-                            <span>탭 전환</span>
-                            <span class="shortcut-key">Ctrl + Tab</span>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -739,6 +759,8 @@
                 this.tabs = new Map();
                 this.activeTabId = null;
                 this.tabCounter = 0;
+                this.editorCounter = 0;
+                this.draggedTabId = null;
                 this.tabContainer = document.getElementById('tab-container');
                 this.tabContent = document.getElementById('tab-content');
                 this.tabNavigation = document.getElementById('tab-navigation');
@@ -749,6 +771,11 @@
                 this.dropdownMenu = document.getElementById('dropdown-menu');
                 this.scrollLeftButton = document.getElementById('tab-scroll-left');
                 this.scrollRightButton = document.getElementById('tab-scroll-right');
+                this.notificationEl = document.getElementById('clipboard-notification');
+                this._notificationTimer = null;
+                this.statusDotEl = document.querySelector('.terminal-status .status-dot');
+                this.statusTextEl = document.querySelector('.terminal-status .status-text');
+                this._connectivityInterval = null;
                 
                 // 요소들이 제대로 찾아졌는지 확인
                 console.log('AdvancedTabManager 초기화:');
@@ -770,89 +797,230 @@
             }
 
             init() {
-                // 새 탭 버튼 요소 확인
+                // 새 탭 버튼 요소 확인 및 이벤트 리스너 설정
                 console.log('새 탭 버튼 요소:', this.newTabButton);
                 
-                // 새 탭 버튼 드롭다운 이벤트
-                this.newTabButton.addEventListener('click', (e) => {
-                    console.log('새 탭 버튼 클릭됨!', e);
-                    e.stopPropagation();
-                    this.toggleNewTabDropdown();
-                });
+                if (this.newTabButton) {
+                    // 새 탭 버튼 클릭 이벤트
+                    this.newTabButton.addEventListener('click', (e) => {
+                        console.log('새 탭 버튼 클릭됨!', e);
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.toggleNewTabDropdown();
+                    });
+                } else {
+                    console.error('새 탭 버튼을 찾을 수 없습니다!');
+                }
 
-                // 새 탭 드롭다운 아이템 클릭
-                this.newTabDropdown.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const tabType = e.target.closest('.new-tab-item')?.getAttribute('data-tab-type');
-                    if (tabType) {
-                        this.createNewTab(tabType);
-                        this.closeNewTabDropdown();
-                    }
-                });
+                if (this.newTabDropdown) {
+                    // 새 탭 드롭다운 아이템 클릭
+                    this.newTabDropdown.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const tabType = e.target.closest('.new-tab-item')?.getAttribute('data-tab-type');
+                        if (tabType) {
+                            console.log('새 탭 생성:', tabType);
+                            this.createNewTab(tabType);
+                            this.closeNewTabDropdown();
+                        }
+                    });
+                } else {
+                    console.error('새 탭 드롭다운을 찾을 수 없습니다!');
+                }
 
                 // 기존 드롭다운 메뉴 이벤트
-                this.dropdownButton.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.toggleDropdown();
-                });
+                if (this.dropdownButton) {
+                    this.dropdownButton.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.toggleDropdown();
+                    });
+                }
 
-                // 드롭다운 메뉴 아이템 클릭
-                this.dropdownMenu.addEventListener('click', (e) => {
-                    const action = e.target.getAttribute('data-action');
-                    if (action) {
-                        this.handleDropdownAction(action);
-                    }
-                });
+                if (this.dropdownMenu) {
+                    // 드롭다운 메뉴 아이템 클릭
+                    this.dropdownMenu.addEventListener('click', (e) => {
+                        const action = e.target.getAttribute('data-action');
+                        if (action) {
+                            this.handleDropdownAction(action);
+                        }
+                    });
+                }
 
                 // 외부 클릭 시 드롭다운 닫기
                 document.addEventListener('click', (e) => {
-                    if (!this.newTabDropdown.contains(e.target) && !this.newTabButton.contains(e.target)) {
+                    if (!(this.newTabDropdown?.contains(e.target)) && !(this.newTabButton?.contains(e.target))) {
                         this.closeNewTabDropdown();
                     }
-                    if (!this.dropdownMenu.contains(e.target) && !this.dropdownButton.contains(e.target)) {
+                    if (!(this.dropdownMenu?.contains(e.target)) && !(this.dropdownButton?.contains(e.target))) {
                         this.closeDropdown();
                     }
                 });
 
-                // 키보드 단축키
-                document.addEventListener('keydown', (e) => {
-                    if (e.ctrlKey) {
-                        switch (e.key) {
-                            case 't':
-                                e.preventDefault();
-                                this.createNewTab('terminal');
-                                break;
-                            case 'e':
-                                e.preventDefault();
-                                this.createNewTab('editor');
-                                break;
-                            case 'w':
-                                e.preventDefault();
-                                if (this.activeTabId) {
-                                    this.closeTab(this.activeTabId);
-                                }
-                                break;
-                            case 'Tab':
-                                e.preventDefault();
-                                this.switchToNextTab();
-                                break;
-                            case 'ArrowLeft':
-                                e.preventDefault();
-                                this.scrollTabs(-100);
-                                break;
-                            case 'ArrowRight':
-                                e.preventDefault();
-                                this.scrollTabs(100);
-                                break;
-                        }
-                    }
-                });
+                // 웰컴 화면 버튼 이벤트 리스너 추가
+                this.setupWelcomeButtons();
 
                 // 클립보드 이벤트 리스너
                 this.setupClipboardHandling();
 
                 // 탭 스크롤 기능 설정
                 this.setupTabScrolling();
+
+                // 드래그 앤 드롭 설정
+                this.setupTabDragAndDrop();
+
+                // 토스트 클릭으로 즉시 닫기
+                if (this.notificationEl) {
+                    this.notificationEl.addEventListener('click', () => this.hideNotification(true));
+                }
+
+                // 온라인 상태 모니터링 시작
+                this.setupConnectivityMonitor();
+            }
+
+            // 키보드 단축키를 전역으로 등록하지 않습니다.
+
+            // ----- Connectivity monitoring -----
+            setupConnectivityMonitor() {
+                const check = () => this.checkInternet().then(state => this.updateConnectivityUI(state));
+
+                // Initial state: checking
+                this.updateConnectivityUI('checking');
+                check();
+
+                // Recheck periodically
+                this._connectivityInterval = setInterval(check, 20000); // every 20s
+
+                // React to browser events
+                window.addEventListener('online', () => {
+                    this.updateConnectivityUI('checking');
+                    check();
+                });
+                window.addEventListener('offline', () => {
+                    this.updateConnectivityUI('offline');
+                });
+
+                // Pause checks when tab hidden to save work
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        if (this._connectivityInterval) {
+                            clearInterval(this._connectivityInterval);
+                            this._connectivityInterval = null;
+                        }
+                    } else if (!this._connectivityInterval) {
+                        check();
+                        this._connectivityInterval = setInterval(check, 20000);
+                    }
+                });
+            }
+
+            async checkInternet(timeoutMs = 3000) {
+                // Use multiple public endpoints; success of any implies connectivity
+                const urls = [
+                    'https://www.gstatic.com/generate_204',
+                    'https://cloudflare.com/cdn-cgi/trace',
+                    'https://www.microsoft.com/favicon.ico'
+                ];
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), timeoutMs);
+                try {
+                    const probes = urls.map(u => fetch(u, { mode: 'no-cors', cache: 'no-store', signal: controller.signal })
+                        .then(() => true)
+                        .catch(() => false));
+                    const results = await Promise.allSettled(probes);
+                    const any = results.some(r => r.status === 'fulfilled' && r.value === true);
+                    return any ? 'online' : (navigator.onLine ? 'checking' : 'offline');
+                } catch (_) {
+                    return navigator.onLine ? 'checking' : 'offline';
+                } finally {
+                    clearTimeout(timeout);
+                }
+            }
+
+            updateConnectivityUI(state) {
+                const dot = this.statusDotEl;
+                const text = this.statusTextEl;
+                if (!dot || !text) return;
+                dot.classList.remove('online', 'offline', 'checking');
+                text.classList.remove('online', 'offline', 'checking');
+                if (state === 'online') {
+                    dot.classList.add('online');
+                    text.classList.add('online');
+                    text.textContent = 'Connected';
+                } else if (state === 'offline') {
+                    dot.classList.add('offline');
+                    text.classList.add('offline');
+                    text.textContent = 'Offline';
+                } else {
+                    dot.classList.add('checking');
+                    text.classList.add('checking');
+                    text.textContent = 'Checking…';
+                }
+            }
+
+            // VS Code 에디터(모나코)로 텍스트 직접 삽입 시도
+            tryPasteIntoEditor(iframe, text) {
+                try {
+                    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+                    if (!doc) return false;
+
+                    // 모나코 에디터의 숨겨진 입력 textarea 탐색
+                    const inputArea = doc.querySelector('textarea.inputarea') || doc.querySelector('.monaco-editor textarea');
+                    if (!inputArea) return false;
+
+                    // 포커스 이동
+                    iframe.contentWindow?.focus();
+                    inputArea.focus();
+
+                    // 1) ClipboardEvent 기반 paste 시도
+                    try {
+                        const dt = new DataTransfer();
+                        dt.setData('text/plain', text);
+                        const paste = new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true });
+                        const pasted = inputArea.dispatchEvent(paste);
+                        if (pasted) return true;
+                    } catch (_) { /* 일부 브라우저에서 ClipboardEvent 생성 불가 */ }
+
+                    // 2) 값 설정 + input 이벤트 디스패치
+                    try {
+                        inputArea.value = text;
+                        const inputEv = new Event('input', { bubbles: true, cancelable: true });
+                        inputArea.dispatchEvent(inputEv);
+                        return true;
+                    } catch (_) {}
+
+                    // 3) execCommand 폴백
+                    try {
+                        const activeEl = doc.activeElement || inputArea;
+                        if (doc.execCommand) {
+                            activeEl.focus();
+                            const ok = doc.execCommand('insertText', false, text);
+                            if (ok) return true;
+                        }
+                    } catch (_) {}
+
+                    return false;
+                } catch (err) {
+                    console.warn('에디터 직접 입력 실패:', err);
+                    return false;
+                }
+            }
+
+            setupWelcomeButtons() {
+                const welcomeTerminalBtn = document.getElementById('welcome-terminal-btn');
+                const welcomeEditorBtn = document.getElementById('welcome-editor-btn');
+
+                if (welcomeTerminalBtn) {
+                    welcomeTerminalBtn.addEventListener('click', () => {
+                        console.log('웰컴 터미널 버튼 클릭');
+                        this.createNewTab('terminal');
+                    });
+                }
+
+                if (welcomeEditorBtn) {
+                    welcomeEditorBtn.addEventListener('click', () => {
+                        console.log('웰컴 에디터 버튼 클릭');
+                        this.createNewTab('editor');
+                    });
+                }
             }
 
             showWelcomeScreen() {
@@ -875,13 +1043,39 @@
             toggleNewTabDropdown() {
                 console.log('toggleNewTabDropdown 호출됨');
                 console.log('드롭다운 요소:', this.newTabDropdown);
-                this.newTabDropdown.classList.toggle('show');
+                console.log('드롭다운 현재 클래스:', this.newTabDropdown?.className);
+                console.log('드롭다운 현재 스타일:', this.newTabDropdown?.style.cssText);
+                if (this.newTabDropdown) {
+                    console.log('드롭다운 computed 스타일:', window.getComputedStyle(this.newTabDropdown).display);
+                }
+                
+                if (this.newTabDropdown) {
+                    this.newTabDropdown.classList.toggle('show');
+                    console.log('드롭다운 토글 후 클래스:', this.newTabDropdown.className);
+                    console.log('드롭다운 토글 후 computed 스타일:', window.getComputedStyle(this.newTabDropdown).display);
+                    
+                    // 강제로 표시 스타일 적용
+                    if (this.newTabDropdown.classList.contains('show')) {
+                        this.newTabDropdown.style.display = 'block';
+                        this.newTabDropdown.style.visibility = 'visible';
+                        this.newTabDropdown.style.opacity = '1';
+                        console.log('강제 스타일 적용 완료');
+                    }
+                } else {
+                    console.error('드롭다운 요소를 찾을 수 없습니다!');
+                }
+                
                 // 다른 드롭다운은 닫기
                 this.closeDropdown();
             }
 
             closeNewTabDropdown() {
+                if (!this.newTabDropdown) return;
                 this.newTabDropdown.classList.remove('show');
+                // Clear forced inline styles applied when opening
+                this.newTabDropdown.style.display = '';
+                this.newTabDropdown.style.visibility = '';
+                this.newTabDropdown.style.opacity = '';
             }
 
             createNewTab(type, customTitle = null, isActive = true) {
@@ -897,7 +1091,8 @@
                         icon = '🖥️';
                         break;
                     case 'editor':
-                        title = customTitle || 'Code Editor';
+                        this.editorCounter++;
+                        title = customTitle || `Code Editor ${this.editorCounter}`;
                         src = '/vscode';
                         icon = '📝';
                         break;
@@ -914,6 +1109,9 @@
                     <span class="tab-title">${title}</span>
                     <button class="tab-close" onclick="event.stopPropagation(); window.tabManager.closeTab('${tabId}')">×</button>
                 `;
+                // Enable drag & drop on the tab button
+                tabButton.setAttribute('draggable', 'true');
+                this.attachDragHandlers(tabButton, tabId);
                 
                 tabButton.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('tab-close')) {
@@ -965,6 +1163,145 @@
                 setTimeout(() => this.updateScrollButtons(), 100);
 
                 return tabId;
+            }
+
+            // ----- Drag & Drop for tabs -----
+            setupTabDragAndDrop() {
+                // Allow dropping in empty area to move to end
+                this.tabContainer.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+                });
+                this.tabContainer.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const draggedId = this.draggedTabId || e.dataTransfer?.getData('text/plain');
+                    if (!draggedId) return;
+                    const draggedBtn = this.getTabButtonById(draggedId);
+                    if (!draggedBtn) return;
+
+                    const buttons = Array.from(this.tabContainer.querySelectorAll('.tab-button'));
+                    if (buttons.length === 0) return;
+
+                    const mouseX = e.clientX;
+                    let insertIndex = -1;
+                    for (let i = 0; i < buttons.length; i++) {
+                        const rect = buttons[i].getBoundingClientRect();
+                        const mid = rect.left + rect.width / 2;
+                        if (mouseX < mid) { insertIndex = i; break; }
+                    }
+
+                    const refNode = insertIndex === -1 ? null : buttons[insertIndex];
+                    this.tabContainer.insertBefore(draggedBtn, refNode);
+                    this.clearDragOverIndicators();
+                    this.applyNewOrderFromButtons();
+                });
+            }
+
+            attachDragHandlers(tabButton, tabId) {
+                tabButton.addEventListener('dragstart', (e) => {
+                    // Prevent drag when starting on close button
+                    if (e.target && e.target.closest && e.target.closest('.tab-close')) {
+                        e.preventDefault();
+                        return;
+                    }
+                    this.draggedTabId = tabId;
+                    tabButton.classList.add('dragging');
+                    e.dataTransfer?.setData('text/plain', tabId);
+                    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+                    // Avoid iframe capturing events during drag
+                    document.querySelectorAll('iframe').forEach(ifr => { ifr.style.pointerEvents = 'none'; });
+                });
+
+                tabButton.addEventListener('dragend', () => {
+                    this.draggedTabId = null;
+                    tabButton.classList.remove('dragging');
+                    this.clearDragOverIndicators();
+                    // Restore iframe interactivity
+                    document.querySelectorAll('iframe').forEach(ifr => { ifr.style.pointerEvents = 'auto'; });
+                });
+
+                tabButton.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!this.draggedTabId || this.draggedTabId === tabId) return;
+                    const side = this.getDropSide(e, tabButton);
+                    this.showDragOverIndicator(tabButton, side);
+                    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+                });
+
+                tabButton.addEventListener('dragleave', () => {
+                    tabButton.classList.remove('drag-over-left', 'drag-over-right');
+                });
+
+                tabButton.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const draggedId = this.draggedTabId || e.dataTransfer?.getData('text/plain');
+                    if (!draggedId || draggedId === tabId) return;
+
+                    const draggedBtn = this.getTabButtonById(draggedId);
+                    if (!draggedBtn) return;
+
+                    const side = this.getDropSide(e, tabButton);
+                    // Avoid no-op insertions
+                    const siblings = Array.from(this.tabContainer.querySelectorAll('.tab-button'));
+                    const fromIndex = siblings.indexOf(draggedBtn);
+                    const toIndexBase = siblings.indexOf(tabButton);
+                    const targetIndex = side === 'left' ? toIndexBase : toIndexBase + 1;
+                    if (fromIndex === targetIndex || fromIndex + 1 === targetIndex) {
+                        this.clearDragOverIndicators();
+                        return;
+                    }
+                    // Insert before or after based on side
+                    if (side === 'left') {
+                        this.tabContainer.insertBefore(draggedBtn, tabButton);
+                    } else {
+                        this.tabContainer.insertBefore(draggedBtn, tabButton.nextSibling);
+                    }
+                    this.clearDragOverIndicators();
+                    this.applyNewOrderFromButtons();
+                });
+            }
+
+            getTabButtonById(tabId) {
+                return this.tabContainer.querySelector(`.tab-button[data-tab-id="${tabId}"]`);
+            }
+
+            getDropSide(e, tabButton) {
+                const rect = tabButton.getBoundingClientRect();
+                const x = e.clientX;
+                const mid = rect.left + rect.width / 2;
+                return x < mid ? 'left' : 'right';
+            }
+
+            showDragOverIndicator(tabButton, side) {
+                tabButton.classList.toggle('drag-over-left', side === 'left');
+                tabButton.classList.toggle('drag-over-right', side === 'right');
+            }
+
+            clearDragOverIndicators() {
+                this.tabContainer.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('drag-over-left', 'drag-over-right');
+                });
+            }
+
+            applyNewOrderFromButtons() {
+                // Rebuild Map in the DOM order
+                const ids = Array.from(this.tabContainer.querySelectorAll('.tab-button'))
+                    .map(btn => btn.getAttribute('data-tab-id'))
+                    .filter(Boolean);
+                const oldMap = this.tabs;
+                const newMap = new Map();
+                ids.forEach(id => {
+                    const data = oldMap.get(id);
+                    if (data) newMap.set(id, data);
+                });
+                // Add any remaining (safety)
+                oldMap.forEach((v, k) => { if (!newMap.has(k)) newMap.set(k, v); });
+                this.tabs = newMap;
+
+                // Keep the active tab selected
+                if (this.activeTabId) {
+                    this.switchTab(this.activeTabId);
+                }
             }
 
             closeTab(tabId) {
@@ -1019,12 +1356,16 @@
 
                 // 탭 버튼이 컨테이너 영역을 벗어난 경우에만 스크롤
                 if (buttonRect.left < containerRect.left || buttonRect.right > containerRect.right) {
-                    const scrollLeft = tabButton.offsetLeft - container.clientWidth / 2 + tabButton.clientWidth / 2;
-                    
-                    container.scrollTo({
-                        left: Math.max(0, Math.min(scrollLeft, container.scrollWidth - container.clientWidth)),
-                        behavior: 'smooth'
-                    });
+                    // Prefer native scrollIntoView with nearest block alignment
+                    try {
+                        tabButton.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+                    } catch (_) {
+                        const scrollLeft = tabButton.offsetLeft - container.clientWidth / 2 + tabButton.clientWidth / 2;
+                        container.scrollTo({
+                            left: Math.max(0, Math.min(scrollLeft, container.scrollWidth - container.clientWidth)),
+                            behavior: 'smooth'
+                        });
+                    }
                 }
 
                 // 스크롤 버튼 상태 업데이트
@@ -1175,7 +1516,7 @@
             }
 
             showNotification(message, type = 'success') {
-                const notification = document.getElementById('clipboard-notification');
+                const notification = this.notificationEl || document.getElementById('clipboard-notification');
                 notification.textContent = message;
                 
                 // 타입에 따른 스타일 변경
@@ -1196,14 +1537,42 @@
                         notification.style.background = '#2ecc71';
                 }
                 
+                notification.setAttribute('aria-hidden', 'false');
                 notification.classList.add('show');
+                notification.style.pointerEvents = 'auto';
                 
                 // 정보 타입은 더 오래 표시
                 const duration = type === 'info' ? 5000 : 3000;
                 
-                setTimeout(() => {
-                    notification.classList.remove('show');
+                // 기존 타이머가 있으면 취소
+                if (this._notificationTimer) {
+                    clearTimeout(this._notificationTimer);
+                }
+                this._notificationTimer = setTimeout(() => {
+                    this.hideNotification();
                 }, duration);
+            }
+
+            hideNotification(immediate = false) {
+                const notification = this.notificationEl || document.getElementById('clipboard-notification');
+                if (!notification) return;
+                if (this._notificationTimer) {
+                    clearTimeout(this._notificationTimer);
+                    this._notificationTimer = null;
+                }
+                notification.classList.remove('show');
+                notification.setAttribute('aria-hidden', 'true');
+                if (immediate) {
+                    notification.style.pointerEvents = 'none';
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(300px)';
+                } else {
+                    const onEnd = () => {
+                        notification.style.pointerEvents = 'none';
+                        notification.removeEventListener('transitionend', onEnd);
+                    };
+                    notification.addEventListener('transitionend', onEnd);
+                }
             }
 
             getActiveTab() {
@@ -1366,8 +1735,33 @@
 
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            window.tabManager = new AdvancedTabManager();
-            new ResizableLayout();
+            console.log('DOM이 로드되었습니다. 탭 매니저 초기화를 시작합니다.');
+            
+            try {
+                window.tabManager = new AdvancedTabManager();
+                console.log('탭 매니저 초기화 완료:', window.tabManager);
+                
+                new ResizableLayout();
+                console.log('리사이저블 레이아웃 초기화 완료');
+            } catch (error) {
+                console.error('초기화 중 오류 발생:', error);
+            }
+        });
+
+        // 백업: 윈도우 로드 이벤트도 추가
+        window.addEventListener('load', () => {
+            console.log('윈도우 로드 완료');
+            
+            // tabManager가 없다면 다시 시도
+            if (!window.tabManager) {
+                console.log('탭 매니저가 없어서 다시 초기화를 시도합니다.');
+                try {
+                    window.tabManager = new AdvancedTabManager();
+                    console.log('백업 탭 매니저 초기화 완료:', window.tabManager);
+                } catch (error) {
+                    console.error('백업 초기화 중 오류 발생:', error);
+                }
+            }
         });
 
         // iframe 간 메시지 통신 처리
@@ -1404,35 +1798,28 @@
                         const activeTab = window.tabManager.getActiveTab();
                         console.log('현재 활성 탭:', activeTab);
                         if (activeTab && activeTab.type === 'editor') {
-                            console.log('에디터 탭에서 클립보드 복사 처리:', event.data.data);
-                            
+                            console.log('에디터 탭 활성 - 직접 입력 시도');
                             const textToSend = event.data.data;
-                            
-                            // 클립보드에 복사하고 사용자에게 안내
-                            try {
-                                navigator.clipboard.writeText(textToSend).then(() => {
-                                    window.tabManager.showNotification(
-                                        `"${textToSend}"가 클립보드에 복사되었습니다. VS Code에서 Ctrl+V로 붙여넣으세요.`, 
-                                        'info'
-                                    );
-                                });
-                            } catch (clipboardError) {
-                                console.error('클립보드 복사 실패:', clipboardError);
-                                
-                                // 폴백: 텍스트 선택 방식
-                                const textArea = document.createElement('textarea');
-                                textArea.value = textToSend;
-                                document.body.appendChild(textArea);
-                                textArea.select();
-                                document.execCommand('copy');
-                                document.body.removeChild(textArea);
-                                
-                                window.tabManager.showNotification(
-                                    `"${textToSend}"가 클립보드에 복사되었습니다. VS Code에서 Ctrl+V로 붙여넣으세요.`, 
-                                    'info'
-                                );
+                            const ok = window.tabManager.tryPasteIntoEditor(activeTab.iframe, textToSend);
+                            if (ok) {
+                                window.tabManager.showNotification('에디터에 전송되었습니다.', 'success');
+                            } else {
+                                console.log('직접 입력 실패 - 클립보드 복사로 폴백');
+                                try {
+                                    navigator.clipboard.writeText(textToSend).then(() => {
+                                        window.tabManager.showNotification(`"${textToSend}"가 클립보드에 복사되었습니다. VS Code에서 Ctrl+V로 붙여넣으세요.`, 'info');
+                                    });
+                                } catch (clipboardError) {
+                                    console.error('클립보드 복사 실패:', clipboardError);
+                                    const textArea = document.createElement('textarea');
+                                    textArea.value = textToSend;
+                                    document.body.appendChild(textArea);
+                                    textArea.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(textArea);
+                                    window.tabManager.showNotification(`"${textToSend}"가 클립보드에 복사되었습니다. VS Code에서 Ctrl+V로 붙여넣으세요.`, 'info');
+                                }
                             }
-                            
                         } else {
                             console.log('활성 탭이 에디터가 아님');
                         }

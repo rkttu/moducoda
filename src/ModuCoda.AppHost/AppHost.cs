@@ -20,6 +20,6 @@ builder.AddExecutable("ttyd",
 builder.AddExecutable("code-tunnel",
     "code-tunnel",
     string.Empty,
-    ["serve-web", "--host", "127.0.0.1", "--port", "8000", "--without-connection-token", "--accept-server-license-terms", "--server-base-path", "vscode"]);
+    ["serve-web", "--host", "127.0.0.1", "--port", "8000", "--without-connection-token", "--accept-server-license-terms", "--server-base-path", "vscode", "--verbose"]);
 
 builder.Build().Run();
